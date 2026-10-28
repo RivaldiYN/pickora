@@ -4,13 +4,22 @@
  */
 
 export function getSiteUrl(): string {
-  const url =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXTAUTH_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "") ||
-    "http://localhost:3000";
-
-  return url.replace(/\/+$/, "");
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/+$/, "");
+  }
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  if (process.env.NEXTAUTH_URL && !process.env.NEXTAUTH_URL.includes("localhost")) {
+    return process.env.NEXTAUTH_URL.replace(/\/+$/, "");
+  }
+  if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
+    return "https://usepickora.vercel.app";
+  }
+  return "http://localhost:3000";
 }
 
 export const siteConfig = {
@@ -47,4 +56,3 @@ export function toAbsoluteUrl(pathOrUrl: string): string {
   const cleanPath = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
   return `${baseUrl}${cleanPath}`;
 }
-
