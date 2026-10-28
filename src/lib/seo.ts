@@ -47,3 +47,4 @@ export function toAbsoluteUrl(pathOrUrl: string): string {
   const cleanPath = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
   return `${baseUrl}${cleanPath}`;
 }
+
