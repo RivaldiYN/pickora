@@ -3,6 +3,11 @@ import { getAsset } from "@/lib/neon-storage";
 
 export const dynamic = "force-dynamic";
 
+interface TransformableBody {
+  transformToByteArray?: () => Promise<Uint8Array>;
+  arrayBuffer?: () => Promise<ArrayBuffer>;
+}
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ key: string[] }> }
@@ -20,12 +25,15 @@ export async function GET(
       return new NextResponse("Asset not found", { status: 404 });
     }
 
-    // Convert AWS SDK stream to binary buffer to guarantee full non-null response delivery
-    const byteArray = (data.Body as any).transformToByteArray
-      ? await (data.Body as any).transformToByteArray()
-      : await (data.Body as any).arrayBuffer();
+    const body = data.Body as TransformableBody;
+    const byteArray =
+      typeof body.transformToByteArray === "function"
+        ? await body.transformToByteArray()
+        : typeof body.arrayBuffer === "function"
+        ? new Uint8Array(await body.arrayBuffer())
+        : new Uint8Array();
 
-    return new Response(byteArray, {
+    return new Response(Buffer.from(byteArray), {
       status: 200,
       headers: {
         "Content-Type": data.ContentType || "application/octet-stream",
@@ -33,12 +41,12 @@ export async function GET(
         ...(data.ContentLength ? { "Content-Length": String(data.ContentLength) } : {}),
       },
     });
-  } catch (error: any) {
-    if (error?.name === "NoSuchKey" || error?.$metadata?.httpStatusCode === 404) {
+  } catch (error: unknown) {
+    const err = error as { name?: string; $metadata?: { httpStatusCode?: number } };
+    if (err?.name === "NoSuchKey" || err?.$metadata?.httpStatusCode === 404) {
       return new NextResponse("Asset not found", { status: 404 });
     }
     console.error("Error serving asset:", error);
     return new NextResponse("Failed to load asset", { status: 500 });
   }
 }
-

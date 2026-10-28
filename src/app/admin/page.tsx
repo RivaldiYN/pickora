@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { Package, FolderTree, Star, Plus, ExternalLink } from "lucide-react";
 import { db } from "@/lib/db";

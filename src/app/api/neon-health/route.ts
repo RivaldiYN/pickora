@@ -8,6 +8,17 @@ import { getNeonRealtimeConfig } from "@/lib/neon-realtime";
 
 export const dynamic = "force-dynamic";
 
+interface ServiceResult {
+  status: "ok" | "error";
+  details?: Record<string, unknown>;
+  error?: string;
+}
+
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  return String(err);
+}
+
 export async function GET(req: Request) {
   // Protect health route so unauthenticated visitors cannot spam bucket writes
   const session = await auth();
@@ -21,7 +32,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const results: Record<string, { status: "ok" | "error"; details?: any; error?: string }> = {};
+  const results: Record<string, ServiceResult> = {};
 
   // 1. Test Neon Postgres via Prisma
   try {
@@ -38,10 +49,10 @@ export async function GET(req: Request) {
         categories: categoryCount,
       },
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     results.postgres = {
       status: "error",
-      error: err?.message || String(err),
+      error: getErrorMessage(err),
     };
   }
 
@@ -58,10 +69,10 @@ export async function GET(req: Request) {
         totalObjects: assets.length,
       },
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     results.objectStorage = {
       status: "error",
-      error: err?.message || String(err),
+      error: getErrorMessage(err),
     };
   }
 
@@ -75,10 +86,10 @@ export async function GET(req: Request) {
         response: functionResponse.trim(),
       },
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     results.functions = {
       status: "error",
-      error: err?.message || String(err),
+      error: getErrorMessage(err),
     };
   }
 
@@ -91,10 +102,10 @@ export async function GET(req: Request) {
         keysFound: Array.isArray(jwks?.keys) ? jwks.keys.length : 0,
       },
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     results.auth = {
       status: "error",
-      error: err?.message || String(err),
+      error: getErrorMessage(err),
     };
   }
 
@@ -108,10 +119,10 @@ export async function GET(req: Request) {
         hasSecret: !!rt.secret,
       },
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     results.realtime = {
       status: "error",
-      error: err?.message || String(err),
+      error: getErrorMessage(err),
     };
   }
 

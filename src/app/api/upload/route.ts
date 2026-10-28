@@ -80,12 +80,14 @@ export async function POST(req: Request) {
       filename: file.name,
       size: file.size,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Failed to upload image to Neon storage.";
     console.error("Neon upload error:", error);
     return NextResponse.json(
       {
         success: false,
-        message: error?.message || "Failed to upload image to Neon storage.",
+        message,
       },
       { status: 500 }
     );

@@ -9,7 +9,6 @@ if (typeof WebSocket === "undefined") {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var cachedPrisma: PrismaClient | undefined;
 }
 

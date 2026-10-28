@@ -7,40 +7,30 @@ import { Input, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { createCategory, updateCategory } from "@/lib/actions/categories";
 
+interface CategoryData {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+}
+
 interface CategoryDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  categoryToEdit?: {
-    id: string;
-    name: string;
-    slug: string;
-    description?: string | null;
-  } | null;
+  categoryToEdit?: CategoryData | null;
 }
 
-export function CategoryDialog({
-  isOpen,
-  onClose,
-  categoryToEdit,
-}: CategoryDialogProps) {
-  const [name, setName] = React.useState("");
-  const [slug, setSlug] = React.useState("");
-  const [description, setDescription] = React.useState("");
+interface CategoryFormProps {
+  onClose: () => void;
+  categoryToEdit?: CategoryData | null;
+}
+
+function CategoryForm({ onClose, categoryToEdit }: CategoryFormProps) {
+  const [name, setName] = React.useState(categoryToEdit?.name ?? "");
+  const [slug, setSlug] = React.useState(categoryToEdit?.slug ?? "");
+  const [description, setDescription] = React.useState(categoryToEdit?.description ?? "");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    if (categoryToEdit) {
-      setName(categoryToEdit.name);
-      setSlug(categoryToEdit.slug);
-      setDescription(categoryToEdit.description || "");
-    } else {
-      setName("");
-      setSlug("");
-      setDescription("");
-    }
-    setError(null);
-  }, [categoryToEdit, isOpen]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -79,62 +69,78 @@ export function CategoryDialog({
   };
 
   return (
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      {error && (
+        <p role="alert" className="p-3 text-xs text-accent bg-accent/5 border border-accent/30 rounded-md">
+          {error}
+        </p>
+      )}
+
+      <Field label="Category Name" htmlFor="category-name">
+        <Input
+          id="category-name"
+          value={name}
+          onChange={handleNameChange}
+          placeholder="e.g. Running Shoes"
+          required
+        />
+      </Field>
+
+      <Field
+        label="URL Slug"
+        htmlFor="category-slug"
+        hint={`URL format: /?category=${slug || "slug"}`}
+      >
+        <Input
+          id="category-slug"
+          value={slug}
+          onChange={(e) => setSlug(e.target.value)}
+          placeholder="e.g. running-shoes"
+          required
+        />
+      </Field>
+
+      <Field label="Description (Optional)" htmlFor="category-desc">
+        <Textarea
+          id="category-desc"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Short category note..."
+          rows={3}
+        />
+      </Field>
+
+      <div className="flex justify-end gap-3 pt-3 border-t border-rule">
+        <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSubmitting}>
+          Cancel
+        </Button>
+        <Button type="submit" size="sm" disabled={isSubmitting}>
+          {isSubmitting ? "Saving..." : categoryToEdit ? "Save Changes" : "Create Category"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+export function CategoryDialog({
+  isOpen,
+  onClose,
+  categoryToEdit,
+}: CategoryDialogProps) {
+  return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={categoryToEdit ? "Edit Category" : "Add New Category"}
       description="Organize your product recommendations into curated categories."
     >
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        {error && (
-          <p role="alert" className="p-3 text-xs text-accent bg-accent/5 border border-accent/30 rounded-md">
-            {error}
-          </p>
-        )}
-
-        <Field label="Category Name" htmlFor="category-name">
-          <Input
-            id="category-name"
-            value={name}
-            onChange={handleNameChange}
-            placeholder="e.g. Running Shoes"
-            required
-          />
-        </Field>
-
-        <Field
-          label="URL Slug"
-          htmlFor="category-slug"
-          hint={`URL format: /?category=${slug || "slug"}`}
-        >
-          <Input
-            id="category-slug"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            placeholder="e.g. running-shoes"
-            required
-          />
-        </Field>
-
-        <Field label="Description (Optional)" htmlFor="category-desc">
-          <Textarea
-            id="category-desc"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Short category note..."
-            rows={3}
-          />
-        </Field>
-
-        <div className="flex justify-end gap-3 pt-3 border-t border-rule">
-          <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSubmitting}>
-            Cancel
-          </Button>
-          <Button type="submit" size="sm" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : categoryToEdit ? "Save Changes" : "Create Category"}
-          </Button>
-        </div>
-      </form>
+      {isOpen ? (
+        <CategoryForm
+          key={categoryToEdit?.id ?? "new"}
+          categoryToEdit={categoryToEdit}
+          onClose={onClose}
+        />
+      ) : null}
     </Modal>
   );
 }
