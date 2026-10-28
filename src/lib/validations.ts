@@ -8,6 +8,18 @@ const httpUrl = (message: string) =>
     .max(2048, "URL is too long")
     .pipe(z.url({ protocol: /^https?$/, message }));
 
+const imageSource = z
+  .string()
+  .trim()
+  .min(1, "Image is required")
+  .max(2048, "URL is too long")
+  .refine(
+    (val) =>
+      (val.startsWith("/") && !val.startsWith("//") && !val.startsWith("/\\")) ||
+      /^https?:\/\//i.test(val),
+    "Image must be an uploaded asset (/api/assets/...) or an HTTP/HTTPS URL"
+  );
+
 export const categorySchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(50),
   slug: z
@@ -28,7 +40,7 @@ export const productSchema = z.object({
     .trim()
     .min(10, "Description must be at least 10 characters")
     .max(1000),
-  imageUrl: httpUrl("Image URL must start with http:// or https://"),
+  imageUrl: imageSource,
   affiliateUrl: httpUrl("Affiliate URL must start with http:// or https://"),
   categoryId: z.string().min(1, "Pick a category"),
   price: z.preprocess(

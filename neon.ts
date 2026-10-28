@@ -12,8 +12,8 @@ export default defineConfig({
     hello: { name: "Hello World", source: "./hello.ts" },
   },
   buckets: {
-    // "private" is the default; use "public_read" for anonymous reads
-    assets: { access: "private" },
+    // "public_read" allows direct read access for images and media
+    assets: { access: "public_read" },
   },
   // Branch policy: per-branch tuning
   branch: (branch) => {

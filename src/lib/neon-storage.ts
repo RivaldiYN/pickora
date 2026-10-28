@@ -32,6 +32,15 @@ export async function uploadAsset(
   return await s3.send(command);
 }
 
+export async function getAsset(key: string) {
+  const command = new GetObjectCommand({
+    Bucket: ASSETS_BUCKET,
+    Key: key,
+  });
+
+  return await s3.send(command);
+}
+
 export async function listAssets() {
   const command = new ListObjectsV2Command({
     Bucket: ASSETS_BUCKET,
@@ -40,4 +49,3 @@ export async function listAssets() {
   const response = await s3.send(command);
   return response.Contents || [];
 }
-

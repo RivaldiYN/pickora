@@ -11,9 +11,11 @@ Pickora is a full-stack, curated product recommendation website built with Next.
    - Fully responsive, clean corporate-deck visual design.
 
 2. **Protected Admin Dashboard (`/admin`)**:
-   - Guarded by NextAuth middleware.
+   - Guarded by NextAuth proxy middleware.
+   - Dual-mode product imagery: direct photo upload (JPG, PNG, WEBP, GIF, AVIF up to 5MB) saved directly to Neon Object Storage (`assets` bucket) or external URL.
+   - Persistent asset serving route `/api/assets/[...key]` with immutable HTTP cache headers.
    - Full CRUD for Categories (Name, Slug, Description).
-   - Full CRUD for Products (Title, Description, Image URL, Category, Affiliate URL, Price, Featured toggle).
+   - Full CRUD for Products (Title, Description, Image URL/File, Category, Affiliate URL, Price, Featured toggle).
    - Overview metrics and quick actions.
 
 3. **Production & Security**:
