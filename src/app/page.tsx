@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Navbar } from "@/components/public/Navbar";
 import { HeroBanner } from "@/components/public/HeroBanner";
 import { CategoryFilters } from "@/components/public/CategoryFilters";
@@ -140,10 +141,12 @@ export default async function HomePage({ searchParams }: PageProps) {
       />
       <Navbar />
       <HeroBanner />
-      <CategoryFilters
-        categories={categories}
-        totalProductCount={totalProductCount}
-      />
+      <Suspense fallback={<div className="w-full h-14 border-b border-rule bg-surface" />}>
+        <CategoryFilters
+          categories={categories}
+          totalProductCount={totalProductCount}
+        />
+      </Suspense>
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
         <ProductGrid

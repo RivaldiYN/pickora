@@ -149,11 +149,13 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </article>
 
-      <ProductDetailModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        product={product}
-      />
+      {isModalOpen && (
+        <ProductDetailModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          product={product}
+        />
+      )}
     </>
   );
 }
