@@ -60,3 +60,4 @@ export function ProductGrid({ products, currentCategoryName }: ProductGridProps)
     </section>
   );
 }
+

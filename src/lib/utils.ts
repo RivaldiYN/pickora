@@ -14,3 +14,4 @@ export function formatCurrency(amount: number | string | null | undefined): stri
     currency: "USD",
   }).format(num);
 }
+

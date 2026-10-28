@@ -170,3 +170,4 @@ export async function deleteCategory(id: string): Promise<ActionResponse> {
     };
   }
 }
+

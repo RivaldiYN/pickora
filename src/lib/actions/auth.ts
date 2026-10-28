@@ -46,3 +46,4 @@ export async function loginAction(data: LoginInput) {
 export async function logoutAction() {
   await signOut({ redirectTo: "/login" });
 }
+

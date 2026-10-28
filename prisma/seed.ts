@@ -1,7 +1,8 @@
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
+dotenv.config();
 
-const prisma = new PrismaClient();
+import { db as prisma } from "../src/lib/db";
+import bcrypt from "bcryptjs";
 
 async function main() {
   const adminEmail = process.env.ADMIN_EMAIL || "admin@pickora.local";
@@ -148,3 +149,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+

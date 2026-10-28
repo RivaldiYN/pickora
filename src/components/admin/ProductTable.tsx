@@ -213,3 +213,4 @@ export function ProductTable({ products, categories }: ProductTableProps) {
     </div>
   );
 }
+
