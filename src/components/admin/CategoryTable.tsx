@@ -12,10 +12,7 @@ interface Category {
   name: string;
   slug: string;
   description: string | null;
-  createdAt: Date;
-  _count?: {
-    products: number;
-  };
+  productCount: number;
 }
 
 interface CategoryTableProps {
@@ -26,6 +23,7 @@ export function CategoryTable({ categories }: CategoryTableProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [categoryToEdit, setCategoryToEdit] = React.useState<Category | null>(null);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   const handleEdit = (category: Category) => {
     setCategoryToEdit(category);
@@ -38,51 +36,62 @@ export function CategoryTable({ categories }: CategoryTableProps) {
   };
 
   const handleDelete = async (category: Category) => {
-    const count = category._count?.products ?? 0;
+    const count = category.productCount;
     const confirmMessage =
       count > 0
-        ? `This category contains ${count} products. Deleting it will also remove those products. Proceed?`
-        : `Are you sure you want to delete the "${category.name}" category?`;
+        ? `This category contains ${count} product(s). Deleting it will also delete those products. Proceed?`
+        : `Delete the "${category.name}" category?`;
 
     if (!window.confirm(confirmMessage)) return;
 
     setDeletingId(category.id);
-    await deleteCategory(category.id);
+    setErrorMessage(null);
+    const res = await deleteCategory(category.id);
     setDeletingId(null);
+
+    if (!res.success) {
+      setErrorMessage(res.message || "Could not delete category.");
+    }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Categories</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="text-xl font-bold text-ink">Categories</h2>
+          <p className="text-xs text-muted">
             {categories.length} {categories.length === 1 ? "category" : "categories"} defined
           </p>
         </div>
         <Button onClick={handleCreate} size="sm" className="gap-2">
-          <Plus className="h-4 w-4" />
+          <Plus className="size-4" />
           Add Category
         </Button>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-xs">
+      {errorMessage && (
+        <div role="alert" className="p-3 text-xs text-accent bg-accent/5 border border-accent/30 rounded-md">
+          {errorMessage}
+        </div>
+      )}
+
+      <div className="rounded-lg border border-rule bg-surface overflow-hidden">
         {categories.length === 0 ? (
           <div className="text-center py-16 px-4">
-            <FolderTree className="h-10 w-10 mx-auto text-slate-300 mb-2" />
-            <p className="text-sm font-medium text-slate-900">No categories found</p>
-            <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-              Create your first category to start organizing your product recommendations.
+            <FolderTree className="size-10 mx-auto text-muted mb-2" />
+            <p className="text-sm font-semibold text-ink">No categories yet</p>
+            <p className="text-xs text-muted mt-1 max-w-sm mx-auto">
+              Create your first category to start organizing recommendations.
             </p>
             <Button onClick={handleCreate} size="sm" className="mt-4 gap-2">
-              <Plus className="h-4 w-4" />
+              <Plus className="size-4" />
               Add First Category
             </Button>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50/75 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <thead className="bg-paper/70 border-b border-rule text-xs font-semibold uppercase tracking-wider text-muted">
                 <tr>
                   <th className="px-5 py-3">Category Name</th>
                   <th className="px-5 py-3">URL Slug</th>
@@ -91,41 +100,43 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                   <th className="px-5 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-rule/60">
                 {categories.map((cat) => (
-                  <tr key={cat.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="px-5 py-4 font-semibold text-slate-900">
+                  <tr key={cat.id} className="hover:bg-paper/40 transition-colors">
+                    <td className="px-5 py-4 font-semibold text-ink">
                       {cat.name}
                     </td>
                     <td className="px-5 py-4">
-                      <code className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded">
+                      <code className="text-xs font-mono bg-paper text-ink px-2 py-0.5 rounded border border-rule">
                         {cat.slug}
                       </code>
                     </td>
-                    <td className="px-5 py-4 text-slate-500 max-w-xs truncate">
-                      {cat.description || "—"}
+                    <td className="px-5 py-4 text-muted max-w-xs truncate">
+                      {cat.description || "None"}
                     </td>
                     <td className="px-5 py-4 text-center">
-                      <Badge variant="secondary" className="font-medium">
-                        {cat._count?.products ?? 0}
+                      <Badge variant="outline">
+                        {cat.productCount}
                       </Badge>
                     </td>
                     <td className="px-5 py-4 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <button
+                          type="button"
                           onClick={() => handleEdit(cat)}
                           title="Edit"
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                          className="size-8 inline-flex items-center justify-center rounded-md text-muted hover:text-ink hover:bg-paper cursor-pointer"
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil className="size-3.5" />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleDelete(cat)}
                           disabled={deletingId === cat.id}
                           title="Delete"
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-50"
+                          className="size-8 inline-flex items-center justify-center rounded-md text-muted hover:text-accent hover:bg-accent/5 cursor-pointer disabled:opacity-50"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="size-3.5" />
                         </button>
                       </div>
                     </td>
@@ -145,4 +156,3 @@ export function CategoryTable({ categories }: CategoryTableProps) {
     </div>
   );
 }
-

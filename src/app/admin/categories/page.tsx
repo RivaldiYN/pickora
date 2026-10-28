@@ -1,4 +1,4 @@
-import { getCategories } from "@/lib/actions/categories";
+import { listCategories } from "@/lib/queries";
 import { CategoryTable } from "@/components/admin/CategoryTable";
 
 export const dynamic = "force-dynamic";
@@ -8,7 +8,7 @@ export const metadata = {
 };
 
 export default async function AdminCategoriesPage() {
-  const categories = await getCategories();
+  const categories = await listCategories();
 
   return (
     <div>
@@ -16,4 +16,3 @@ export default async function AdminCategoriesPage() {
     </div>
   );
 }
-

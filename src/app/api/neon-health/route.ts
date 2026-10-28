@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { uploadAsset, listAssets } from "@/lib/neon-storage";
 import { callHelloFunction } from "@/lib/neon-functions";
@@ -7,7 +8,19 @@ import { getNeonRealtimeConfig } from "@/lib/neon-realtime";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
+  // Protect health route so unauthenticated visitors cannot spam bucket writes
+  const session = await auth();
+  const url = new URL(req.url);
+  const secretKey = url.searchParams.get("key");
+  const isAuthorized =
+    !!session?.user ||
+    (process.env.HEALTH_SECRET && secretKey === process.env.HEALTH_SECRET);
+
+  if (!isAuthorized && process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const results: Record<string, { status: "ok" | "error"; details?: any; error?: string }> = {};
 
   // 1. Test Neon Postgres via Prisma

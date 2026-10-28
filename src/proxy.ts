@@ -2,15 +2,11 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
 export default auth((req) => {
-  const isLoggedIn = !!req.auth;
-  const isAccessingAdmin = req.nextUrl.pathname.startsWith("/admin");
-
-  if (isAccessingAdmin && !isLoggedIn) {
+  if (!req.auth) {
     const loginUrl = new URL("/login", req.nextUrl.origin);
     loginUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
   }
-
   return NextResponse.next();
 });
 

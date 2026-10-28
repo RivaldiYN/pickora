@@ -40,7 +40,7 @@ export default async function AdminDashboardPage() {
       title: "Featured Picks",
       value: featuredCount,
       icon: Star,
-      description: "Prioritized recommendations on homepage",
+      description: "Prioritized recommendations",
     },
   ];
 
@@ -49,23 +49,23 @@ export default async function AdminDashboardPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-bold tracking-tight text-ink">
             Dashboard Overview
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-xs text-muted mt-1">
             Manage your affiliate catalog, categories, and recommendation feeds.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/admin/products">
             <Button size="sm" className="gap-2">
-              <Plus className="h-4 w-4" />
+              <Plus className="size-4" />
               Manage Products
             </Button>
           </Link>
           <Link href="/admin/categories">
             <Button size="sm" variant="outline" className="gap-2">
-              <FolderTree className="h-4 w-4" />
+              <FolderTree className="size-4" />
               Categories
             </Button>
           </Link>
@@ -79,16 +79,16 @@ export default async function AdminDashboardPage() {
           return (
             <Card key={stat.title} className="p-5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted">
                   {stat.title}
                 </span>
-                <div className="h-9 w-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <Icon className="h-4 w-4" />
+                <div className="size-8 rounded-md bg-paper text-ink flex items-center justify-center border border-rule">
+                  <Icon className="size-4" />
                 </div>
               </div>
               <div className="mt-3">
-                <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
-                <p className="text-xs text-slate-500 mt-1">{stat.description}</p>
+                <p className="font-mono text-3xl font-bold text-ink">{stat.value}</p>
+                <p className="text-xs text-muted mt-1">{stat.description}</p>
               </div>
             </Card>
           );
@@ -102,39 +102,39 @@ export default async function AdminDashboardPage() {
             <CardTitle className="text-base font-semibold">
               Recently Added Recommendations
             </CardTitle>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-muted mt-0.5">
               The latest items in your affiliate catalog
             </p>
           </div>
-          <Link href="/admin/products" className="text-xs font-medium text-blue-600 hover:underline">
-            View all →
+          <Link href="/admin/products" className="text-xs font-medium text-ink hover:underline">
+            View all
           </Link>
         </CardHeader>
         <CardContent>
           {recentProducts.length === 0 ? (
-            <div className="text-center py-12 text-slate-500 text-sm">
-              <Package className="h-8 w-8 mx-auto text-slate-300 mb-2" />
+            <div className="text-center py-12 text-muted text-sm">
+              <Package className="size-8 mx-auto text-muted/60 mb-2" />
               <p>No products yet. Click &quot;Manage Products&quot; to add your first item.</p>
             </div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-rule/60">
               {recentProducts.map((p) => (
-                <div key={p.id} className="py-3.5 flex items-center justify-between gap-4">
+                <div key={p.id} className="py-3 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
                     <img
                       src={p.imageUrl}
                       alt={p.title}
-                      className="h-11 w-11 rounded-lg object-cover bg-slate-100 shrink-0 border border-slate-200"
+                      className="size-10 rounded-md object-cover bg-paper shrink-0 border border-rule"
                     />
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-slate-900 truncate">
+                      <p className="text-sm font-semibold text-ink truncate">
                         {p.title}
                       </p>
-                      <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500">
-                        <Badge variant="secondary" className="text-[10px] py-0 px-2">
+                      <div className="flex items-center gap-2 mt-0.5 text-xs text-muted">
+                        <Badge variant="outline" className="text-[10px] py-0 px-1.5">
                           {p.category.name}
                         </Badge>
-                        {p.price && <span>{formatCurrency(p.price.toString())}</span>}
+                        {p.price && <span className="font-mono">{formatCurrency(Number(p.price))}</span>}
                       </div>
                     </div>
                   </div>
@@ -142,11 +142,11 @@ export default async function AdminDashboardPage() {
                     <a
                       href={p.affiliateUrl}
                       target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-slate-400 hover:text-blue-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+                      rel="noopener noreferrer sponsored"
+                      className="text-muted hover:text-ink p-1.5 rounded hover:bg-paper transition-colors"
                       title="Open affiliate link"
                     >
-                      <ExternalLink className="h-4 w-4" />
+                      <ExternalLink className="size-4" />
                     </a>
                   </div>
                 </div>
@@ -158,4 +158,3 @@ export default async function AdminDashboardPage() {
     </div>
   );
 }
-

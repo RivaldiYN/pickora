@@ -3,8 +3,8 @@
 import * as React from "react";
 import { Modal } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Input, Textarea, Select } from "@/components/ui/input";
+import { Field } from "@/components/ui/field";
 import { createProduct, updateProduct } from "@/lib/actions/products";
 
 interface CategoryOption {
@@ -19,7 +19,7 @@ interface ProductToEdit {
   imageUrl: string;
   affiliateUrl: string;
   categoryId: string;
-  price?: number | string | null;
+  price?: number | null;
   featured?: boolean;
 }
 
@@ -53,7 +53,7 @@ export function ProductDialog({
       setImageUrl(productToEdit.imageUrl);
       setAffiliateUrl(productToEdit.affiliateUrl);
       setCategoryId(productToEdit.categoryId);
-      setPrice(productToEdit.price ? productToEdit.price.toString() : "");
+      setPrice(productToEdit.price !== null && productToEdit.price !== undefined ? String(productToEdit.price) : "");
       setFeatured(!!productToEdit.featured);
     } else {
       setTitle("");
@@ -91,7 +91,7 @@ export function ProductDialog({
     if (res.success) {
       onClose();
     } else {
-      setError(res.message || "Failed to save product");
+      setError(res.message || "Failed to save product.");
     }
   };
 
@@ -99,102 +99,91 @@ export function ProductDialog({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={productToEdit ? "Edit Recommendation" : "Add New Recommendation"}
-      description="Add a curated product recommendation with an affiliate destination."
-      maxWidth="lg"
+      title={productToEdit ? "Edit Product" : "Add Product"}
+      description="Curate a product recommendation with an affiliate destination."
+      size="lg"
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         {error && (
-          <div className="p-3 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg">
+          <p role="alert" className="p-3 text-xs text-accent bg-accent/5 border border-accent/30 rounded-md">
             {error}
-          </div>
+          </p>
         )}
 
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-slate-700">Product Title</label>
+        <Field label="Product Title" htmlFor="prod-title">
           <Input
+            id="prod-title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Sony WH-1000XM5 Wireless Headphones"
             required
           />
-        </div>
+        </Field>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-700">Category</label>
-            <select
+          <Field label="Category" htmlFor="prod-cat">
+            <Select
+              id="prod-cat"
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
               required
-              className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             >
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
                 </option>
               ))}
-            </select>
-          </div>
+            </Select>
+          </Field>
 
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-700">Price (USD, Optional)</label>
+          <Field label="Price (USD, Optional)" htmlFor="prod-price">
             <Input
+              id="prod-price"
               type="number"
               step="0.01"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               placeholder="e.g. 299.99"
             />
-          </div>
+          </Field>
         </div>
 
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-slate-700">Image URL</label>
+        <Field label="Image URL (http:// or https://)" htmlFor="prod-img">
           <Input
+            id="prod-img"
             type="url"
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="https://images.unsplash.com/..."
+            placeholder="https://..."
             required
           />
-          {imageUrl && (
-            <div className="mt-2 flex items-center gap-3 p-2 border border-slate-100 rounded-lg bg-slate-50">
-              <img
-                src={imageUrl}
-                alt="Preview"
-                className="h-12 w-12 object-cover rounded bg-white border border-slate-200"
-                onError={(e) => ((e.target as HTMLElement).style.display = "none")}
-              />
-              <span className="text-xs text-slate-500">Image Preview</span>
-            </div>
-          )}
-        </div>
+        </Field>
 
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-slate-700">Affiliate Link URL</label>
+        <Field
+          label="Affiliate URL (http:// or https://)"
+          htmlFor="prod-aff"
+          hint="Destination opened when user clicks Buy Now."
+        >
           <Input
+            id="prod-aff"
             type="url"
             value={affiliateUrl}
             onChange={(e) => setAffiliateUrl(e.target.value)}
-            placeholder="https://amzn.to/... or https://partner.shop/..."
+            placeholder="https://..."
             required
           />
-          <p className="text-[11px] text-slate-400">
-            Destination clicked by viewers when pressing &quot;Buy Now / See Details&quot;.
-          </p>
-        </div>
+        </Field>
 
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-slate-700">Short Recommendation Note</label>
+        <Field label="Description" htmlFor="prod-desc">
           <Textarea
+            id="prod-desc"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Highlight why this product is worth recommending..."
+            placeholder="Why this item is worth buying..."
             rows={3}
             required
           />
-        </div>
+        </Field>
 
         <div className="flex items-center gap-2 pt-1">
           <input
@@ -202,14 +191,14 @@ export function ProductDialog({
             id="featuredCheckbox"
             checked={featured}
             onChange={(e) => setFeatured(e.target.checked)}
-            className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+            className="size-4 rounded border-rule text-ink cursor-pointer"
           />
-          <label htmlFor="featuredCheckbox" className="text-xs font-medium text-slate-700 cursor-pointer">
-            Mark as Featured recommendation (displayed prominently)
+          <label htmlFor="featuredCheckbox" className="text-xs font-medium text-ink cursor-pointer">
+            Mark as Featured recommendation
           </label>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+        <div className="flex justify-end gap-3 pt-4 border-t border-rule">
           <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
@@ -221,4 +210,3 @@ export function ProductDialog({
     </Modal>
   );
 }
-

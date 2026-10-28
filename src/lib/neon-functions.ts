@@ -18,3 +18,4 @@ export async function callHelloFunction() {
 
   return await res.text();
 }
+

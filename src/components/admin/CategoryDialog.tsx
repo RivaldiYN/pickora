@@ -3,8 +3,8 @@
 import * as React from "react";
 import { Modal } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Input, Textarea } from "@/components/ui/input";
+import { Field } from "@/components/ui/field";
 import { createCategory, updateCategory } from "@/lib/actions/categories";
 
 interface CategoryDialogProps {
@@ -42,7 +42,6 @@ export function CategoryDialog({
     setError(null);
   }, [categoryToEdit, isOpen]);
 
-  // Auto-generate slug from name if creating
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setName(val);
@@ -75,7 +74,7 @@ export function CategoryDialog({
     if (res.success) {
       onClose();
     } else {
-      setError(res.message || "Failed to save category");
+      setError(res.message || "Failed to save category.");
     }
   };
 
@@ -84,49 +83,50 @@ export function CategoryDialog({
       isOpen={isOpen}
       onClose={onClose}
       title={categoryToEdit ? "Edit Category" : "Add New Category"}
-      description="Organize your recommendations into curated category channels."
+      description="Organize your product recommendations into curated categories."
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         {error && (
-          <div className="p-3 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg">
+          <p role="alert" className="p-3 text-xs text-accent bg-accent/5 border border-accent/30 rounded-md">
             {error}
-          </div>
+          </p>
         )}
 
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-slate-700">Category Name</label>
+        <Field label="Category Name" htmlFor="category-name">
           <Input
+            id="category-name"
             value={name}
             onChange={handleNameChange}
             placeholder="e.g. Running Shoes"
             required
           />
-        </div>
+        </Field>
 
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-slate-700">URL Slug</label>
+        <Field
+          label="URL Slug"
+          htmlFor="category-slug"
+          hint={`URL format: /?category=${slug || "slug"}`}
+        >
           <Input
+            id="category-slug"
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
             placeholder="e.g. running-shoes"
             required
           />
-          <p className="text-[11px] text-slate-400">
-            Used in URL filtering: /?category={slug || "slug"}
-          </p>
-        </div>
+        </Field>
 
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-slate-700">Description (Optional)</label>
+        <Field label="Description (Optional)" htmlFor="category-desc">
           <Textarea
+            id="category-desc"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Short description displayed on category pages..."
+            placeholder="Short category note..."
             rows={3}
           />
-        </div>
+        </Field>
 
-        <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+        <div className="flex justify-end gap-3 pt-3 border-t border-rule">
           <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
@@ -138,4 +138,3 @@ export function CategoryDialog({
     </Modal>
   );
 }
-

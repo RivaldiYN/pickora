@@ -3,55 +3,35 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer select-none",
+  "inline-flex cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default:
-          "bg-blue-600 text-white hover:bg-blue-700 shadow-sm focus-visible:ring-blue-600",
-        destructive:
-          "bg-red-600 text-white hover:bg-red-700 shadow-sm focus-visible:ring-red-600",
-        outline:
-          "border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:text-slate-900 focus-visible:ring-slate-400",
-        secondary:
-          "bg-slate-100 text-slate-900 hover:bg-slate-200 focus-visible:ring-slate-400",
-        ghost:
-          "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
-        link:
-          "text-blue-600 underline-offset-4 hover:underline p-0 h-auto",
+        default: "bg-ink text-white hover:bg-ink/85",
+        accent: "bg-accent text-white hover:bg-accent-hover",
+        destructive: "bg-accent text-white hover:bg-accent-hover",
+        outline: "border border-rule bg-surface text-ink hover:border-ink/40",
+        ghost: "text-muted hover:bg-ink/5 hover:text-ink",
       },
       size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-11 rounded-lg px-6 text-base font-semibold",
-        icon: "h-9 w-9",
+        default: "min-h-11 px-4",
+        sm: "min-h-9 px-3 text-xs",
+        icon: "size-11",
       },
     },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
+    defaultVariants: { variant: "default", size: "default" },
   }
 );
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
-}
+    VariantProps<typeof buttonVariants> {}
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, ...props }, ref) => {
-    return (
-      <button
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
-    );
-  }
+  ({ className, variant, size, ...props }, ref) => (
+    <button ref={ref} className={cn(buttonVariants({ variant, size, className }))} {...props} />
+  )
 );
 Button.displayName = "Button";
 
 export { Button, buttonVariants };
-

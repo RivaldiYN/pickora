@@ -5,6 +5,9 @@ import { db } from "@/lib/db";
 import { loginSchema } from "@/lib/validations";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  // Required for `next start` and self-hosting; Vercel sets this implicitly.
+  trustHost: true,
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   providers: [
     Credentials({
       name: "Admin Credentials",
@@ -17,11 +20,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!parsed.success) return null;
 
         const { email, password } = parsed.data;
-        const user = await db.user.findUnique({
-          where: { email },
-        });
-
-        if (!user || !user.password) return null;
+        const user = await db.user.findUnique({ where: { email } });
+        if (!user) return null;
 
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) return null;
@@ -54,9 +54,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     signIn: "/login",
   },
-  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || "pickora-dev-secret-min-32-chars-long",
   session: {
     strategy: "jwt",
   },
 });
-

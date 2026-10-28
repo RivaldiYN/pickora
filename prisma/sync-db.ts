@@ -70,3 +70,4 @@ syncSchema().catch((err) => {
   console.error("Schema sync failed:", err);
   process.exit(1);
 });
+

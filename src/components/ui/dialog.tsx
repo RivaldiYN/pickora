@@ -10,74 +10,89 @@ interface ModalProps {
   title: string;
   description?: string;
   children: React.ReactNode;
-  maxWidth?: "sm" | "md" | "lg" | "xl";
+  size?: "md" | "lg";
 }
 
-export function Modal({
-  isOpen,
-  onClose,
-  title,
-  description,
-  children,
-  maxWidth = "md",
-}: ModalProps) {
+export function Modal({ isOpen, onClose, title, description, children, size = "md" }: ModalProps) {
+  const panelRef = React.useRef<HTMLDivElement>(null);
+  const titleId = React.useId();
+
   React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+    if (!isOpen) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const panel = panelRef.current;
+
+    const focusable = () =>
+      Array.from(
+        panel?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])'
+        ) ?? []
+      );
+
+    // Start on the first form field rather than the close button.
+    (panel?.querySelector<HTMLElement>("input, select, textarea") ?? focusable()[0])?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const items = focusable();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-      window.addEventListener("keydown", handleKeyDown);
-    }
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
     return () => {
-      document.body.style.overflow = "unset";
-      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKeyDown);
+      previouslyFocused?.focus();
     };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
-  const maxWidthClasses = {
-    sm: "max-w-sm",
-    md: "max-w-md",
-    lg: "max-w-lg",
-    xl: "max-w-2xl",
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-      {/* Backdrop */}
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
+      <div className="fixed inset-0 bg-ink/50" onClick={onClose} aria-hidden="true" />
       <div
-        className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in"
-        onClick={onClose}
-      />
-
-      {/* Dialog Body */}
-      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         className={cn(
-          "relative z-50 w-full rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-150",
-          maxWidthClasses[maxWidth]
+          "relative max-h-[92vh] w-full overflow-y-auto rounded-t-lg bg-surface p-5 shadow-xl sm:rounded-lg sm:p-6",
+          size === "lg" ? "sm:max-w-xl" : "sm:max-w-md"
         )}
       >
-        <div className="flex items-start justify-between pb-4 border-b border-slate-100">
+        <div className="flex items-start justify-between gap-4 border-b border-rule pb-4">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-            {description && (
-              <p className="text-sm text-slate-500 mt-0.5">{description}</p>
-            )}
+            <h2 id={titleId} className="text-lg font-semibold">
+              {title}
+            </h2>
+            {description && <p className="mt-0.5 text-sm text-muted">{description}</p>}
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="rounded-lg p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="-m-2 inline-flex size-11 shrink-0 items-center justify-center rounded-md text-muted hover:bg-ink/5 hover:text-ink"
             aria-label="Close"
           >
-            <X className="h-5 w-5" />
+            <X className="size-5" />
           </button>
         </div>
-
         <div className="pt-4">{children}</div>
       </div>
     </div>
   );
 }
-

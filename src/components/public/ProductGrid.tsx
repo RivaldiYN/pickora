@@ -12,7 +12,7 @@ interface Product {
   description: string;
   imageUrl: string;
   affiliateUrl: string;
-  price?: any;
+  price?: number | null;
   featured?: boolean;
   category: Category;
 }
@@ -26,16 +26,16 @@ export function ProductGrid({ products, currentCategoryName }: ProductGridProps)
   if (products.length === 0) {
     return (
       <div className="text-center py-24 px-4 max-w-md mx-auto">
-        <div className="h-16 w-16 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <PackageSearch className="h-8 w-8" />
+        <div className="size-12 bg-surface border border-rule text-muted rounded-md flex items-center justify-center mx-auto mb-3">
+          <PackageSearch className="size-6" />
         </div>
-        <h3 className="text-lg font-bold text-slate-900">
+        <h3 className="text-base font-semibold text-ink">
           No recommendations found
         </h3>
-        <p className="text-sm text-slate-500 mt-1">
-          {currentCategoryName
-            ? `We haven't added any curated items in ${currentCategoryName} yet. Check back soon!`
-            : "No items match your selected filter."}
+        <p className="text-xs text-muted mt-1">
+          {currentCategoryName && currentCategoryName !== "All Products"
+            ? `No curated items currently listed in ${currentCategoryName}.`
+            : "No items match your filter criteria."}
         </p>
       </div>
     );
@@ -43,16 +43,13 @@ export function ProductGrid({ products, currentCategoryName }: ProductGridProps)
 
   return (
     <section className="space-y-6">
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-          Showing {products.length} {products.length === 1 ? "recommendation" : "recommendations"}
-          {currentCategoryName && currentCategoryName !== "All Products" && (
-            <span> in <span className="text-slate-900 font-bold">{currentCategoryName}</span></span>
-          )}
+      <div className="flex items-center justify-between pb-2 border-b border-rule">
+        <p className="font-mono text-xs text-muted uppercase tracking-wider">
+          Exhibit: {currentCategoryName || "All Products"} ({products.length})
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
@@ -60,4 +57,3 @@ export function ProductGrid({ products, currentCategoryName }: ProductGridProps)
     </section>
   );
 }
-

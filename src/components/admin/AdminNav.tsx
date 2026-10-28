@@ -1,8 +1,9 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FolderTree, Package, ExternalLink, LogOut } from "lucide-react";
+import { LayoutDashboard, FolderTree, Package, ExternalLink, LogOut, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/lib/actions/auth";
 
@@ -12,6 +13,7 @@ interface AdminNavProps {
 
 export function AdminNav({ userEmail }: AdminNavProps) {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const links = [
     {
@@ -35,75 +37,111 @@ export function AdminNav({ userEmail }: AdminNavProps) {
   ];
 
   return (
-    <aside className="w-64 border-r border-slate-200 bg-white flex flex-col justify-between shrink-0 h-screen sticky top-0">
-      <div>
-        {/* Brand */}
-        <div className="h-16 px-6 flex items-center justify-between border-b border-slate-100">
-          <Link href="/admin" className="flex items-center gap-2 font-bold text-slate-900 text-lg">
-            <span className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm font-black">
-              P
-            </span>
-            <span>Pickora Admin</span>
-          </Link>
-        </div>
-
-        {/* Navigation */}
-        <div className="p-4 space-y-1">
-          <p className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-            Management
-          </p>
-          {links.map((link) => {
-            const Icon = link.icon;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                  link.active
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                )}
-              >
-                <Icon className={cn("h-4 w-4", link.active ? "text-blue-700" : "text-slate-400")} />
-                <span>{link.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Footer controls */}
-      <div className="p-4 border-t border-slate-100 space-y-3">
-        <Link
-          href="/"
-          target="_blank"
-          className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
-        >
-          <span className="flex items-center gap-2">
-            <ExternalLink className="h-3.5 w-3.5 text-slate-400" />
-            View Public Site
-          </span>
-          <span className="text-slate-400">↗</span>
+    <>
+      {/* Mobile top bar */}
+      <div className="md:hidden flex items-center justify-between p-4 border-b border-rule bg-surface sticky top-0 z-30">
+        <Link href="/admin" className="font-bold text-ink">
+          Pickora Admin
         </Link>
-
-        <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-          <div className="truncate mr-2">
-            <p className="text-xs font-medium text-slate-900 truncate">
-              {userEmail || "Admin"}
-            </p>
-            <p className="text-[11px] text-slate-400">Administrator</p>
-          </div>
-          <button
-            onClick={() => logoutAction()}
-            title="Sign out"
-            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="size-9 inline-flex items-center justify-center rounded-md border border-rule text-ink"
+          aria-label="Toggle menu"
+        >
+          {mobileOpen ? <X className="size-4" /> : <Menu className="size-4" />}
+        </button>
       </div>
-    </aside>
+
+      {/* Backdrop for mobile */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-ink/50 z-30 md:hidden"
+          onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          "w-60 border-r border-rule bg-surface flex flex-col justify-between shrink-0 h-screen sticky top-0 z-40 transition-transform md:translate-x-0",
+          mobileOpen ? "fixed inset-y-0 left-0 translate-x-0 shadow-lg" : "fixed inset-y-0 left-0 -translate-x-full md:static"
+        )}
+      >
+        <div>
+          <div className="h-16 px-6 flex items-center justify-between border-b border-rule">
+            <Link href="/admin" className="font-bold text-ink text-base">
+              Pickora Admin
+            </Link>
+            {mobileOpen && (
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                className="md:hidden size-8 inline-flex items-center justify-center text-muted"
+                aria-label="Close menu"
+              >
+                <X className="size-4" />
+              </button>
+            )}
+          </div>
+
+          <nav className="p-3 space-y-1">
+            <p className="px-3 text-[10px] font-mono uppercase tracking-wider text-muted mb-2">
+              Catalog
+            </p>
+            {links.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    "flex items-center gap-3 px-3 min-h-10 rounded-md text-sm font-medium transition-colors",
+                    link.active
+                      ? "bg-ink text-white"
+                      : "text-muted hover:text-ink hover:bg-paper"
+                  )}
+                >
+                  <Icon className="size-4" />
+                  <span>{link.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        <div className="p-4 border-t border-rule space-y-3">
+          <Link
+            href="/"
+            target="_blank"
+            className="flex items-center justify-between px-3 min-h-9 rounded-md text-xs font-medium text-muted hover:text-ink hover:bg-paper transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <ExternalLink className="size-3.5" />
+              Public Site
+            </span>
+          </Link>
+
+          <div className="pt-3 border-t border-rule flex items-center justify-between">
+            <div className="truncate mr-2">
+              <p className="text-xs font-medium text-ink truncate">
+                {userEmail || "Admin"}
+              </p>
+              <p className="text-[10px] font-mono text-muted uppercase">Administrator</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => logoutAction()}
+              title="Sign out"
+              className="size-8 inline-flex items-center justify-center rounded-md text-muted hover:text-accent hover:bg-accent/5 transition-colors cursor-pointer"
+            >
+              <LogOut className="size-4" />
+            </button>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }
-

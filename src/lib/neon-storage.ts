@@ -40,3 +40,4 @@ export async function listAssets() {
   const response = await s3.send(command);
   return response.Contents || [];
 }
+

@@ -11,3 +11,4 @@ export function getNeonRealtimeConfig() {
     secret: realtimeSecret,
   };
 }
+

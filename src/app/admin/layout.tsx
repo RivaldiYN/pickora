@@ -4,10 +4,7 @@ import { AdminNav } from "@/components/admin/AdminNav";
 
 export const metadata = {
   title: "Admin Dashboard | Pickora",
-  robots: {
-    index: false,
-    follow: false,
-  },
+  robots: { index: false, follow: false },
 };
 
 export default async function AdminLayout({
@@ -22,12 +19,11 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-paper flex flex-col md:flex-row">
       <AdminNav userEmail={session.user.email} />
       <main className="flex-1 min-w-0 overflow-y-auto">
-        <div className="max-w-6xl mx-auto p-6 md:p-8">{children}</div>
+        <div className="max-w-6xl mx-auto p-4 sm:p-6 md:p-8">{children}</div>
       </main>
     </div>
   );
 }
-

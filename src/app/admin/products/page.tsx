@@ -1,5 +1,4 @@
-import { getProducts } from "@/lib/actions/products";
-import { getCategories } from "@/lib/actions/categories";
+import { listProducts, listCategories } from "@/lib/queries";
 import { ProductTable } from "@/components/admin/ProductTable";
 
 export const dynamic = "force-dynamic";
@@ -10,8 +9,8 @@ export const metadata = {
 
 export default async function AdminProductsPage() {
   const [products, categories] = await Promise.all([
-    getProducts(),
-    getCategories(),
+    listProducts(),
+    listCategories(),
   ]);
 
   return (
@@ -20,4 +19,3 @@ export default async function AdminProductsPage() {
     </div>
   );
 }
-

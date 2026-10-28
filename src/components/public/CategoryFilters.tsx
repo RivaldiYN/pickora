@@ -7,9 +7,7 @@ interface Category {
   id: string;
   name: string;
   slug: string;
-  _count?: {
-    products: number;
-  };
+  productCount?: number;
 }
 
 interface CategoryFiltersProps {
@@ -37,16 +35,17 @@ export function CategoryFilters({
   };
 
   return (
-    <div className="w-full border-b border-slate-200/80 bg-white sticky top-16 z-30 shadow-2xs">
+    <div className="w-full border-b border-rule bg-surface sticky top-16 z-30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
           <button
+            type="button"
             onClick={() => handleSelect("all")}
             className={cn(
-              "px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border",
+              "px-3.5 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors cursor-pointer border min-h-9",
               activeCategory === "all"
-                ? "bg-slate-900 text-white border-slate-900 shadow-xs"
-                : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900"
+                ? "bg-ink text-white border-ink"
+                : "bg-surface text-muted border-rule hover:border-ink hover:text-ink"
             )}
           >
             All Products ({totalProductCount})
@@ -57,23 +56,24 @@ export function CategoryFilters({
             return (
               <button
                 key={cat.id}
+                type="button"
                 onClick={() => handleSelect(cat.slug)}
                 className={cn(
-                  "px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border",
+                  "px-3.5 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors cursor-pointer border min-h-9",
                   isActive
-                    ? "bg-blue-600 text-white border-blue-600 shadow-xs"
-                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900"
+                    ? "bg-accent text-white border-accent"
+                    : "bg-surface text-muted border-rule hover:border-ink hover:text-ink"
                 )}
               >
                 {cat.name}
-                {cat._count?.products !== undefined && (
+                {cat.productCount !== undefined && (
                   <span
                     className={cn(
-                      "ml-1.5 text-[10px] font-normal",
-                      isActive ? "text-blue-100" : "text-slate-400"
+                      "ml-1.5 text-[11px]",
+                      isActive ? "text-white/80" : "text-muted"
                     )}
                   >
-                    ({cat._count.products})
+                    ({cat.productCount})
                   </span>
                 )}
               </button>
@@ -84,4 +84,3 @@ export function CategoryFilters({
     </div>
   );
 }
-
