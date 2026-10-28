@@ -42,11 +42,11 @@ export function ProductGrid({ products, currentCategoryName }: ProductGridProps)
   }
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-6" aria-labelledby="catalog-heading">
       <div className="flex items-center justify-between pb-2 border-b border-rule">
-        <p className="font-mono text-xs text-muted uppercase tracking-wider">
+        <h2 id="catalog-heading" className="font-mono text-xs text-muted uppercase tracking-wider font-semibold">
           Exhibit: {currentCategoryName || "All Products"} ({products.length})
-        </p>
+        </h2>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">

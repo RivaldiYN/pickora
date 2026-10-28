@@ -1,20 +1,68 @@
+import type { Metadata } from "next";
 import { Navbar } from "@/components/public/Navbar";
 import { HeroBanner } from "@/components/public/HeroBanner";
 import { CategoryFilters } from "@/components/public/CategoryFilters";
 import { ProductGrid } from "@/components/public/ProductGrid";
 import { Footer } from "@/components/public/Footer";
 import { listCategories, listProducts } from "@/lib/queries";
+import { siteConfig, getSiteUrl, toAbsoluteUrl } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Pickora — Curated Product Index",
-  description:
-    "Direct affiliate recommendations for running, cycling, audio, and desk setups.",
-};
-
 interface PageProps {
   searchParams: Promise<{ category?: string }>;
+}
+
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  const { category: categorySlug } = await searchParams;
+  const siteUrl = getSiteUrl();
+
+  if (!categorySlug) {
+    return {
+      title: siteConfig.title,
+      description: siteConfig.description,
+      alternates: {
+        canonical: siteUrl,
+      },
+      openGraph: {
+        title: siteConfig.title,
+        description: siteConfig.description,
+        url: siteUrl,
+      },
+      twitter: {
+        title: siteConfig.title,
+        description: siteConfig.description,
+      },
+    };
+  }
+
+  const categories = await listCategories();
+  const currentCategory = categories.find((c) => c.slug === categorySlug);
+  const categoryName = currentCategory?.name || categorySlug;
+
+  const title = `Best ${categoryName} Gear & Recommendations | Pickora`;
+  const description = currentCategory?.description
+    ? `${currentCategory.description} Curated, tested, and reviewed by the Pickora team.`
+    : `Explore curated ${categoryName} recommendations on Pickora. Tested gear, specs, and direct official retail links.`;
+
+  const canonicalUrl = `${siteUrl}/?category=${encodeURIComponent(categorySlug)}`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+    },
+    twitter: {
+      title,
+      description,
+    },
+  };
 }
 
 export default async function HomePage({ searchParams }: PageProps) {
@@ -29,9 +77,67 @@ export default async function HomePage({ searchParams }: PageProps) {
   const currentCategoryName = activeCategory?.name || (categorySlug ? categorySlug : "All Products");
 
   const totalProductCount = categories.reduce((sum, c) => sum + c.productCount, 0);
+  const siteUrl = getSiteUrl();
+
+  // Generate Schema.org JSON-LD Structured Data
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        url: siteUrl,
+        name: siteConfig.name,
+        description: siteConfig.description,
+        publisher: {
+          "@id": `${siteUrl}/#organization`,
+        },
+        inLanguage: "en-US",
+      },
+      {
+        "@type": "Organization",
+        "@id": `${siteUrl}/#organization`,
+        name: siteConfig.name,
+        url: siteUrl,
+        logo: {
+          "@type": "ImageObject",
+          url: `${siteUrl}/favicon.ico`,
+        },
+      },
+      {
+        "@type": "ItemList",
+        "@id": `${siteUrl}/#itemlist`,
+        name: currentCategoryName,
+        description: `Curated recommendation index for ${currentCategoryName}`,
+        numberOfItems: products.length,
+        itemListElement: products.map((product, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          item: {
+            "@type": "Product",
+            name: product.title,
+            description: product.description,
+            image: toAbsoluteUrl(product.imageUrl),
+            category: product.category.name,
+            offers: {
+              "@type": "Offer",
+              price: product.price || 0,
+              priceCurrency: "USD",
+              availability: "https://schema.org/InStock",
+              url: product.affiliateUrl,
+            },
+          },
+        })),
+      },
+    ],
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-paper">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
       <HeroBanner />
       <CategoryFilters

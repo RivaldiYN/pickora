@@ -28,14 +28,20 @@ export function ProductCard({ product }: ProductCardProps) {
   const formattedPrice = formatCurrency(product.price);
 
   return (
-    <article className="group flex flex-col justify-between rounded-lg border border-rule bg-surface p-4 transition-colors hover:border-ink/60">
+    <article
+      itemScope
+      itemType="https://schema.org/Product"
+      className="group flex flex-col justify-between rounded-lg border border-rule bg-surface p-4 transition-colors hover:border-ink/60"
+    >
       <div>
         <div className="relative aspect-[4/3] w-full overflow-hidden rounded-md bg-paper border border-rule/50">
           {!imageError ? (
             <img
               src={product.imageUrl}
-              alt={product.title}
+              alt={`${product.title} - ${product.category.name} curated pick`}
               loading="lazy"
+              decoding="async"
+              itemProp="image"
               onError={() => setImageError(true)}
               className="h-full w-full object-cover object-center"
             />
@@ -47,7 +53,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
           <div className="absolute top-2.5 left-2.5">
             <Badge variant="outline" className="text-[11px] font-medium shadow-2xs">
-              {product.category.name}
+              <span itemProp="category">{product.category.name}</span>
             </Badge>
           </div>
 
@@ -69,17 +75,28 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <div className="mt-4 space-y-1">
-          <h3 className="text-base font-semibold text-ink line-clamp-1 leading-snug">
+          <h3 itemProp="name" className="text-base font-semibold text-ink line-clamp-1 leading-snug">
             {product.title}
           </h3>
-          <p className="text-xs text-muted line-clamp-2 leading-relaxed">
+          <p itemProp="description" className="text-xs text-muted line-clamp-2 leading-relaxed">
             {product.description}
           </p>
         </div>
       </div>
 
-      <div className="mt-5 pt-3 border-t border-rule/60">
+      <div
+        itemProp="offers"
+        itemScope
+        itemType="https://schema.org/Offer"
+        className="mt-5 pt-3 border-t border-rule/60"
+      >
+        {product.price !== null && product.price !== undefined && (
+          <meta itemProp="price" content={String(product.price)} />
+        )}
+        <meta itemProp="priceCurrency" content="USD" />
+        <link itemProp="availability" href="https://schema.org/InStock" />
         <a
+          itemProp="url"
           href={product.affiliateUrl}
           target="_blank"
           rel="noopener noreferrer sponsored"
