@@ -37,13 +37,105 @@ export async function listCategories(): Promise<CategoryWithCount[]> {
   }));
 }
 
-export async function listProducts(categorySlug?: string): Promise<PublicProduct[]> {
+export type SortOption = "latest" | "price-asc" | "price-desc" | "popular";
+
+export type ListProductsOptions = {
+  categorySlug?: string;
+  search?: string;
+  sort?: SortOption;
+  limit?: number;
+};
+
+export async function listProducts(
+  categorySlugOrOptions?: string | ListProductsOptions
+): Promise<PublicProduct[]> {
+  const options: ListProductsOptions =
+    typeof categorySlugOrOptions === "string"
+      ? { categorySlug: categorySlugOrOptions }
+      : categorySlugOrOptions || {};
+
+  const { categorySlug, search, sort = "latest", limit } = options;
+
+  let orderBy: any = [{ featured: "desc" }, { createdAt: "desc" }];
+  if (sort === "price-asc") {
+    orderBy = [{ price: "asc" }, { createdAt: "desc" }];
+  } else if (sort === "price-desc") {
+    orderBy = [{ price: "desc" }, { createdAt: "desc" }];
+  } else if (sort === "popular") {
+    orderBy = [{ clicks: "desc" }, { createdAt: "desc" }];
+  }
+
+  const whereConditions: any[] = [];
+  if (categorySlug) {
+    whereConditions.push({ category: { slug: categorySlug } });
+  }
+  if (search && search.trim() !== "") {
+    whereConditions.push({
+      OR: [
+        { title: { contains: search.trim(), mode: "insensitive" } },
+        { description: { contains: search.trim(), mode: "insensitive" } },
+      ],
+    });
+  }
+
+  const where = whereConditions.length > 0 ? { AND: whereConditions } : undefined;
+
   const rows = await db.product.findMany({
-    where: categorySlug ? { category: { slug: categorySlug } } : undefined,
-    orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+    where,
+    orderBy,
+    take: limit,
     include: { category: { select: { id: true, name: true, slug: true } } },
   });
-  // Decimal is not serializable across the server/client boundary.
+
+  return rows.map((p) => ({
+    id: p.id,
+    title: p.title,
+    description: p.description,
+    imageUrl: p.imageUrl,
+    affiliateUrl: p.affiliateUrl,
+    price: p.price === null ? null : Number(p.price),
+    featured: p.featured,
+    categoryId: p.categoryId,
+    category: p.category,
+  }));
+}
+
+export async function getProductById(id: string): Promise<PublicProduct | null> {
+  const p = await db.product.findUnique({
+    where: { id },
+    include: { category: { select: { id: true, name: true, slug: true } } },
+  });
+
+  if (!p) return null;
+
+  return {
+    id: p.id,
+    title: p.title,
+    description: p.description,
+    imageUrl: p.imageUrl,
+    affiliateUrl: p.affiliateUrl,
+    price: p.price === null ? null : Number(p.price),
+    featured: p.featured,
+    categoryId: p.categoryId,
+    category: p.category,
+  };
+}
+
+export async function listRelatedProducts(
+  productId: string,
+  categoryId: string,
+  limit = 4
+): Promise<PublicProduct[]> {
+  const rows = await db.product.findMany({
+    where: {
+      categoryId,
+      id: { not: productId },
+    },
+    take: limit,
+    orderBy: { createdAt: "desc" },
+    include: { category: { select: { id: true, name: true, slug: true } } },
+  });
+
   return rows.map((p) => ({
     id: p.id,
     title: p.title,

@@ -15,18 +15,30 @@ export function Navbar() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-3">
+        <nav className="flex items-center gap-6">
+          <div className="hidden sm:flex items-center gap-5 text-xs font-medium text-muted">
+            <Link href="/" className="hover:text-ink transition-colors">
+              Picks
+            </Link>
+            <Link href="/about" className="hover:text-ink transition-colors">
+              About
+            </Link>
+            <Link href="/contact" className="hover:text-ink transition-colors">
+              Contact
+            </Link>
+          </div>
+
           <Link href="/admin">
             <Button
               variant="outline"
               size="sm"
-              className="gap-1.5 text-xs font-medium"
+              className="gap-1.5 text-xs font-medium border-rule hover:bg-surface"
             >
               <ShieldCheck className="size-3.5 text-muted" />
               <span>Admin</span>
             </Button>
           </Link>
-        </div>
+        </nav>
       </div>
     </header>
   );

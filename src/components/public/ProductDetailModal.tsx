@@ -169,21 +169,20 @@ export function ProductDetailModal({
             Redirects directly to verified retail partner page.
           </p>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 sm:flex-none px-4 py-2.5 rounded-md border border-rule text-xs font-semibold text-ink hover:bg-paper transition-colors cursor-pointer"
-            >
-              Close
-            </button>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <a
-              href={product.affiliateUrl}
+              href={`/picks/${product.id}`}
+              className="flex-1 sm:flex-none px-3.5 py-2.5 rounded-md border border-rule text-xs font-semibold text-ink hover:bg-paper transition-colors text-center cursor-pointer"
+            >
+              Full Review Page
+            </a>
+            <a
+              href={`/api/out/${product.id}`}
               target="_blank"
               rel="noopener noreferrer sponsored"
               className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-md bg-accent px-5 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-accent-hover shadow-xs cursor-pointer"
             >
-              <span>Buy Now / See Details</span>
+              <span>Buy on Retailer</span>
               <ExternalLink className="size-3.5" />
             </a>
           </div>

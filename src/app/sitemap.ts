@@ -1,12 +1,15 @@
 import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/seo";
-import { listCategories } from "@/lib/queries";
+import { listCategories, listProducts } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
-  const categories = await listCategories();
+  const [categories, products] = await Promise.all([
+    listCategories(),
+    listProducts(),
+  ]);
 
   const routes: MetadataRoute.Sitemap = [
     {
@@ -14,6 +17,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1.0,
+    },
+    {
+      url: `${siteUrl}/about`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${siteUrl}/contact`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${siteUrl}/privacy`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      url: `${siteUrl}/terms`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      url: `${siteUrl}/disclosure`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.6,
     },
   ];
 
@@ -23,6 +56,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.8,
+    });
+  }
+
+  for (const product of products) {
+    routes.push({
+      url: `${siteUrl}/picks/${product.id}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
     });
   }
 

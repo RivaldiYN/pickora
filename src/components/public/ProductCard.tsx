@@ -103,7 +103,13 @@ export function ProductCard({ product }: ProductCardProps) {
               itemProp="name"
               className="text-base font-semibold text-ink line-clamp-1 leading-snug group-hover:text-accent transition-colors"
             >
-              {product.title}
+              <a
+                href={`/picks/${product.id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="hover:underline"
+              >
+                {product.title}
+              </a>
             </h3>
             <p
               itemProp="description"
@@ -126,18 +132,18 @@ export function ProductCard({ product }: ProductCardProps) {
           <meta itemProp="priceCurrency" content="USD" />
           <link itemProp="availability" href="https://schema.org/InStock" />
 
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
+          <a
+            href={`/picks/${product.id}`}
+            onClick={(e) => e.stopPropagation()}
             className="inline-flex min-h-11 items-center justify-center px-3 py-2.5 rounded-md border border-rule text-xs font-semibold text-ink hover:bg-paper transition-colors cursor-pointer shrink-0"
-            title="Read full description"
+            title="Read full review & specs"
           >
-            <span>Details</span>
-          </button>
+            <span>Review</span>
+          </a>
 
           <a
             itemProp="url"
-            href={product.affiliateUrl}
+            href={`/api/out/${product.id}`}
             target="_blank"
             rel="noopener noreferrer sponsored"
             onClick={(e) => e.stopPropagation()}

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { siteConfig, getSiteUrl } from "@/lib/seo";
 import "./globals.css";
@@ -79,10 +80,21 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+
   return (
     <html lang="en" className={`${plexSans.variable} ${plexMono.variable} h-full`}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
+        {adsenseClientId && (
+          <Script
+            id="google-adsense"
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+        )}
       </head>
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>

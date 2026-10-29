@@ -1,6 +1,8 @@
 "use client";
 
+import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Search, X, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Category {
@@ -21,34 +23,109 @@ export function CategoryFilters({
 }: CategoryFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const activeCategory = searchParams.get("category") || "all";
 
-  const handleSelect = (slug: string) => {
+  const activeCategory = searchParams.get("category") || "all";
+  const activeSort = searchParams.get("sort") || "latest";
+  const activeSearch = searchParams.get("q") || "";
+
+  const [searchTerm, setSearchTerm] = React.useState(activeSearch);
+
+  // Sync state if URL changes externally
+  React.useEffect(() => {
+    setSearchTerm(activeSearch);
+  }, [activeSearch]);
+
+  const updateUrl = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (slug === "all") {
-      params.delete("category");
-    } else {
-      params.set("category", slug);
-    }
+    Object.entries(updates).forEach(([key, val]) => {
+      if (!val || val === "all" || val === "latest") {
+        params.delete(key);
+      } else {
+        params.set(key, val);
+      }
+    });
     const query = params.toString() ? `?${params.toString()}` : "/";
     router.push(query, { scroll: false });
   };
 
+  const handleSelectCategory = (slug: string) => {
+    updateUrl({ category: slug });
+  };
+
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    updateUrl({ sort: e.target.value });
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateUrl({ q: searchTerm.trim() || null });
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    updateUrl({ q: null });
+  };
+
   return (
-    <div className="w-full border-b border-rule bg-surface sticky top-16 z-30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+    <div className="w-full border-b border-rule bg-surface sticky top-16 z-30 shadow-2xs">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 space-y-3">
+        {/* Top Controls: Search Bar & Sort Selector */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          {/* Search Form */}
+          <form
+            onSubmit={handleSearchSubmit}
+            className="relative flex-1 max-w-md flex items-center"
+          >
+            <Search className="absolute left-3 size-4 text-muted pointer-events-none" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search gear, brand, or model..."
+              className="w-full h-9 pl-9 pr-8 text-xs bg-paper border border-rule rounded-md text-ink placeholder:text-muted focus:outline-none focus:border-ink"
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                className="absolute right-2.5 text-muted hover:text-ink p-0.5"
+                aria-label="Clear search"
+              >
+                <X className="size-3.5" />
+              </button>
+            )}
+          </form>
+
+          {/* Sort Selector */}
+          <div className="flex items-center gap-2 self-end sm:self-auto text-xs">
+            <SlidersHorizontal className="size-3.5 text-muted shrink-0" />
+            <span className="text-muted hidden sm:inline">Sort:</span>
+            <select
+              value={activeSort}
+              onChange={handleSortChange}
+              className="h-9 px-2.5 py-1 text-xs bg-paper border border-rule rounded-md text-ink font-medium focus:outline-none focus:border-ink cursor-pointer"
+            >
+              <option value="latest">Latest Recommendations</option>
+              <option value="popular">Most Popular</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Category Pills Bar */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
           <button
             type="button"
-            onClick={() => handleSelect("all")}
+            onClick={() => handleSelectCategory("all")}
             className={cn(
-              "px-3.5 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors cursor-pointer border min-h-9",
+              "px-3.5 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors cursor-pointer border min-h-8",
               activeCategory === "all"
                 ? "bg-ink text-white border-ink"
                 : "bg-surface text-muted border-rule hover:border-ink hover:text-ink"
             )}
           >
-            All Products ({totalProductCount})
+            All Categories ({totalProductCount})
           </button>
 
           {categories.map((cat) => {
@@ -57,9 +134,9 @@ export function CategoryFilters({
               <button
                 key={cat.id}
                 type="button"
-                onClick={() => handleSelect(cat.slug)}
+                onClick={() => handleSelectCategory(cat.slug)}
                 className={cn(
-                  "px-3.5 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors cursor-pointer border min-h-9",
+                  "px-3.5 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors cursor-pointer border min-h-8",
                   isActive
                     ? "bg-accent text-white border-accent"
                     : "bg-surface text-muted border-rule hover:border-ink hover:text-ink"

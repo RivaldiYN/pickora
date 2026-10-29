@@ -41,6 +41,7 @@ model Product {
   affiliateUrl String
   price        Decimal? @db.Decimal(10, 2)
   featured     Boolean  @default(false)
+  clicks       Int      @default(0)
   categoryId   String
   category     Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
@@ -48,5 +49,6 @@ model Product {
 
   @@index([categoryId])
   @@index([createdAt])
+  @@index([clicks])
   @@map("products")
 }
