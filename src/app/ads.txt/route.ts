@@ -8,7 +8,7 @@ export async function GET() {
     process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID ||
     (process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID
       ? process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID.replace(/^ca-/, "")
-      : "pub-0000000000000000");
+      : "pub-9572962055277353");
 
   const body = [
     "# Pickora Authorized Digital Sellers (ads.txt)",

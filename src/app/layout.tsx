@@ -73,6 +73,10 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
   },
+  other: {
+    "google-adsense-account":
+      process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-9572962055277353",
+  },
 };
 
 export default function RootLayout({
@@ -80,7 +84,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+  const adsenseClientId =
+    process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-9572962055277353";
 
   return (
     <html lang="en" className={`${plexSans.variable} ${plexMono.variable} h-full`}>

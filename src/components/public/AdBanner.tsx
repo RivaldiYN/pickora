@@ -15,7 +15,8 @@ export function AdBanner({
   className = "",
   label = "SPONSORED / ADVERTISEMENT",
 }: AdBannerProps) {
-  const adClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+  const adClientId =
+    process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-9572962055277353";
   const isProduction = process.env.NODE_ENV === "production" && !!adClientId;
   const adRef = React.useRef<HTMLModElement>(null);
   const initialized = React.useRef(false);
