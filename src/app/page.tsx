@@ -115,7 +115,7 @@ export default async function HomePage({ searchParams }: PageProps) {
         url: siteUrl,
         logo: {
           "@type": "ImageObject",
-          url: `${siteUrl}/favicon.ico`,
+          url: `${siteUrl}/logo.png`,
         },
       },
       {

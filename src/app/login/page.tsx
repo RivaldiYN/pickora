@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { safeCallbackPath } from "@/lib/utils";
@@ -31,6 +32,16 @@ export default async function LoginPage({
         </Link>
 
         <div className="mt-4 rounded-lg border border-rule bg-surface p-6 sm:p-8">
+          <Link href="/" className="inline-block mb-4">
+            <Image
+              src="/logo.png"
+              alt="Pickora"
+              width={140}
+              height={29}
+              priority
+              className="h-7 w-auto object-contain"
+            />
+          </Link>
           <h1 className="text-xl font-semibold">Admin sign in</h1>
           <p className="mt-1 text-sm text-muted">Manage categories and product picks.</p>
           <LoginForm callbackPath={target} />

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export function Footer() {
   return (
@@ -7,12 +8,18 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-rule">
           {/* Brand Col */}
           <div className="md:col-span-2 space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-ink text-base tracking-tight">Pickora</span>
+            <Link href="/" className="inline-flex items-center gap-2.5">
+              <Image
+                src="/logo.png"
+                alt="Pickora"
+                width={126}
+                height={26}
+                className="h-6 w-auto object-contain"
+              />
               <span className="font-mono text-[10px] text-muted border border-rule px-1.5 py-0.5 rounded">
                 CURATED INDEX
               </span>
-            </div>
+            </Link>
             <p className="text-xs text-muted max-w-sm leading-relaxed">
               An independent curated directory of tested gear, audio hardware, cycling accessories, and desk essentials. Verified retail connections with zero paid ranking.
             </p>

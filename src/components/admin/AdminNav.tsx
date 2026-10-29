@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, FolderTree, Package, ExternalLink, LogOut, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -40,8 +41,17 @@ export function AdminNav({ userEmail }: AdminNavProps) {
     <>
       {/* Mobile top bar */}
       <div className="md:hidden flex items-center justify-between p-4 border-b border-rule bg-surface sticky top-0 z-30">
-        <Link href="/admin" className="font-bold text-ink">
-          Pickora Admin
+        <Link href="/admin" className="flex items-center gap-2">
+          <Image
+            src="/logo.png"
+            alt="Pickora"
+            width={116}
+            height={24}
+            className="h-6 w-auto object-contain"
+          />
+          <span className="font-mono text-[10px] text-muted border border-rule px-1.5 py-0.5 rounded">
+            ADMIN
+          </span>
         </Link>
         <button
           type="button"
@@ -71,8 +81,17 @@ export function AdminNav({ userEmail }: AdminNavProps) {
       >
         <div>
           <div className="h-16 px-6 flex items-center justify-between border-b border-rule">
-            <Link href="/admin" className="font-bold text-ink text-base">
-              Pickora Admin
+            <Link href="/admin" className="flex items-center gap-2">
+              <Image
+                src="/logo.png"
+                alt="Pickora"
+                width={116}
+                height={24}
+                className="h-6 w-auto object-contain"
+              />
+              <span className="font-mono text-[10px] text-muted border border-rule px-1.5 py-0.5 rounded">
+                ADMIN
+              </span>
             </Link>
             {mobileOpen && (
               <button
