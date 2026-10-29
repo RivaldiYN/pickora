@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { siteConfig, getSiteUrl } from "@/lib/seo";
 import "./globals.css";
@@ -92,12 +91,10 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         {adsenseClientId && (
-          <Script
-            id="google-adsense"
+          <script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
             crossOrigin="anonymous"
-            strategy="afterInteractive"
           />
         )}
       </head>
