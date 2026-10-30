@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { ExternalLink, X } from "lucide-react";
+import { ExternalLink, X, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 
@@ -33,6 +33,7 @@ export function ProductDetailModal({
 }: ProductDetailModalProps) {
   const panelRef = React.useRef<HTMLDivElement>(null);
   const [imageError, setImageError] = React.useState(false);
+  const [imageLoaded, setImageLoaded] = React.useState(false);
   const formattedPrice = formatCurrency(product.price);
 
   React.useEffect(() => {
@@ -123,12 +124,22 @@ export function ProductDetailModal({
         {/* Product Media & Image */}
         <div className="relative aspect-[16/10] sm:aspect-[16/9] w-full overflow-hidden rounded-lg bg-paper border border-rule flex items-center justify-center">
           {!imageError ? (
-            <img
-              src={product.imageUrl}
-              alt={product.title}
-              onError={() => setImageError(true)}
-              className="h-full w-full object-contain sm:object-cover"
-            />
+            <>
+              {!imageLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center bg-paper/80 z-5">
+                  <Loader2 className="size-6 text-muted/60 animate-spin" />
+                </div>
+              )}
+              <img
+                src={product.imageUrl}
+                alt={product.title}
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageError(true)}
+                className={`h-full w-full object-contain sm:object-cover transition-opacity duration-300 ${
+                  imageLoaded ? "opacity-100" : "opacity-0"
+                }`}
+              />
+            </>
           ) : (
             <div className="p-8 text-center text-sm text-muted">
               {product.title}

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { siteConfig, getSiteUrl } from "@/lib/seo";
+import { RouteProgressBar } from "@/components/public/RouteProgressBar";
 import "./globals.css";
 
 const plexSans = IBM_Plex_Sans({
@@ -101,7 +103,12 @@ export default function RootLayout({
           />
         )}
       </head>
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        <Suspense fallback={null}>
+          <RouteProgressBar />
+        </Suspense>
+        {children}
+      </body>
     </html>
   );
 }

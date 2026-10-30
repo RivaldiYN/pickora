@@ -342,8 +342,14 @@ function ProductForm({ onClose, categories, productToEdit }: ProductFormProps) {
         <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSubmitting || isUploading}>
           Cancel
         </Button>
-        <Button type="submit" size="sm" disabled={isSubmitting || isUploading}>
-          {isSubmitting ? "Saving..." : productToEdit ? "Save Changes" : "Create Product"}
+        <Button
+          type="submit"
+          size="sm"
+          disabled={isUploading}
+          isLoading={isSubmitting}
+          loadingText={productToEdit ? "Saving Changes..." : "Creating Product..."}
+        >
+          {productToEdit ? "Save Changes" : "Create Product"}
         </Button>
       </div>
     </form>

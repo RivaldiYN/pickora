@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Pencil, Trash2, ExternalLink, Package } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, Package, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ProductDialog } from "./ProductDialog";
@@ -205,10 +205,15 @@ export function ProductTable({ products, categories }: ProductTableProps) {
                           type="button"
                           onClick={() => handleDelete(p)}
                           disabled={deletingId === p.id}
-                          title="Delete"
+                          title={deletingId === p.id ? "Deleting..." : "Delete"}
+                          aria-label={deletingId === p.id ? "Deleting product" : "Delete product"}
                           className="size-8 inline-flex items-center justify-center rounded-md text-muted hover:text-accent hover:bg-accent/5 cursor-pointer disabled:opacity-50"
                         >
-                          <Trash2 className="size-3.5" />
+                          {deletingId === p.id ? (
+                            <Loader2 className="size-3.5 animate-spin text-accent" />
+                          ) : (
+                            <Trash2 className="size-3.5" />
+                          )}
                         </button>
                       </div>
                     </td>

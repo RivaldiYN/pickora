@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FolderTree, Package, ExternalLink, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, FolderTree, Package, ExternalLink, LogOut, Menu, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/lib/actions/auth";
 
@@ -15,6 +15,16 @@ interface AdminNavProps {
 export function AdminNav({ userEmail }: AdminNavProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logoutAction();
+    } catch {
+      setIsLoggingOut(false);
+    }
+  };
 
   const links = [
     {
@@ -152,11 +162,17 @@ export function AdminNav({ userEmail }: AdminNavProps) {
             </div>
             <button
               type="button"
-              onClick={() => logoutAction()}
-              title="Sign out"
-              className="size-8 inline-flex items-center justify-center rounded-md text-muted hover:text-accent hover:bg-accent/5 transition-colors cursor-pointer"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              title={isLoggingOut ? "Signing out..." : "Sign out"}
+              aria-label={isLoggingOut ? "Signing out..." : "Sign out"}
+              className="size-8 inline-flex items-center justify-center rounded-md text-muted hover:text-accent hover:bg-accent/5 transition-colors cursor-pointer disabled:opacity-50"
             >
-              <LogOut className="size-4" />
+              {isLoggingOut ? (
+                <Loader2 className="size-4 animate-spin text-accent" />
+              ) : (
+                <LogOut className="size-4" />
+              )}
             </button>
           </div>
         </div>

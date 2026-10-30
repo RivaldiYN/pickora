@@ -114,8 +114,13 @@ function CategoryForm({ onClose, categoryToEdit }: CategoryFormProps) {
         <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSubmitting}>
           Cancel
         </Button>
-        <Button type="submit" size="sm" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : categoryToEdit ? "Save Changes" : "Create Category"}
+        <Button
+          type="submit"
+          size="sm"
+          isLoading={isSubmitting}
+          loadingText={categoryToEdit ? "Saving Changes..." : "Creating Category..."}
+        >
+          {categoryToEdit ? "Save Changes" : "Create Category"}
         </Button>
       </div>
     </form>

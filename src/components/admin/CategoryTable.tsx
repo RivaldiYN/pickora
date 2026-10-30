@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Pencil, Trash2, FolderTree } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderTree, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CategoryDialog } from "./CategoryDialog";
@@ -133,10 +133,15 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                           type="button"
                           onClick={() => handleDelete(cat)}
                           disabled={deletingId === cat.id}
-                          title="Delete"
+                          title={deletingId === cat.id ? "Deleting..." : "Delete"}
+                          aria-label={deletingId === cat.id ? "Deleting category" : "Delete category"}
                           className="size-8 inline-flex items-center justify-center rounded-md text-muted hover:text-accent hover:bg-accent/5 cursor-pointer disabled:opacity-50"
                         >
-                          <Trash2 className="size-3.5" />
+                          {deletingId === cat.id ? (
+                            <Loader2 className="size-3.5 animate-spin text-accent" />
+                          ) : (
+                            <Trash2 className="size-3.5" />
+                          )}
                         </button>
                       </div>
                     </td>

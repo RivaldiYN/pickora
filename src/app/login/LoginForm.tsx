@@ -47,8 +47,8 @@ export function LoginForm({ callbackPath }: { callbackPath: string }) {
       <Field label="Password" htmlFor="password">
         <Input id="password" name="password" type="password" autoComplete="current-password" required />
       </Field>
-      <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? "Signing in..." : "Sign in"}
+      <Button type="submit" className="w-full" isLoading={pending} loadingText="Signing in...">
+        Sign in
       </Button>
     </form>
   );

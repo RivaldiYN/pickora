@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { ExternalLink, Maximize2 } from "lucide-react";
+import { ExternalLink, Maximize2, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 import { ProductDetailModal } from "./ProductDetailModal";
@@ -27,6 +27,7 @@ export interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const [imageError, setImageError] = React.useState(false);
+  const [imageLoaded, setImageLoaded] = React.useState(false);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const formattedPrice = formatCurrency(product.price);
 
@@ -52,15 +53,25 @@ export function ProductCard({ product }: ProductCardProps) {
         >
           <div className="relative aspect-[4/3] w-full overflow-hidden rounded-md bg-paper border border-rule/50">
             {!imageError ? (
-              <img
-                src={product.imageUrl}
-                alt={`${product.title} - ${product.category.name} curated pick`}
-                loading="lazy"
-                decoding="async"
-                itemProp="image"
-                onError={() => setImageError(true)}
-                className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
-              />
+              <>
+                {!imageLoaded && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-paper/80 z-5">
+                    <Loader2 className="size-5 text-muted/60 animate-spin" />
+                  </div>
+                )}
+                <img
+                  src={product.imageUrl}
+                  alt={`${product.title} - ${product.category.name} curated pick`}
+                  loading="lazy"
+                  decoding="async"
+                  itemProp="image"
+                  onLoad={() => setImageLoaded(true)}
+                  onError={() => setImageError(true)}
+                  className={`h-full w-full object-cover object-center transition-all duration-300 group-hover:scale-105 ${
+                    imageLoaded ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+              </>
             ) : (
               <div className="flex h-full w-full items-center justify-center p-4 text-center text-xs text-muted">
                 {product.title}
