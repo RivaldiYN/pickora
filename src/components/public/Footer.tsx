@@ -14,7 +14,14 @@ export function Footer() {
                 alt="Pickora"
                 width={126}
                 height={26}
-                className="h-6 w-auto object-contain"
+                className="h-6 w-auto object-contain dark:hidden"
+              />
+              <Image
+                src="/logo-dark.png"
+                alt="Pickora"
+                width={126}
+                height={26}
+                className="h-6 w-auto object-contain hidden dark:inline-block"
               />
               <span className="font-mono text-[10px] text-muted border border-rule px-1.5 py-0.5 rounded">
                 CURATED INDEX

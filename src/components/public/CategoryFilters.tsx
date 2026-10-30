@@ -146,7 +146,7 @@ export function CategoryFilters({
             className={cn(
               "px-3.5 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors cursor-pointer border min-h-8 inline-flex items-center gap-1.5 disabled:opacity-80",
               activeCategory === "all"
-                ? "bg-ink text-white border-ink"
+                ? "bg-ink text-paper border-ink"
                 : "bg-surface text-muted border-rule hover:border-ink hover:text-ink"
             )}
           >

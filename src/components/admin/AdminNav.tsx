@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, FolderTree, Package, ExternalLink, LogOut, Menu, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/lib/actions/auth";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface AdminNavProps {
   userEmail?: string | null;
@@ -57,20 +58,30 @@ export function AdminNav({ userEmail }: AdminNavProps) {
             alt="Pickora"
             width={116}
             height={24}
-            className="h-6 w-auto object-contain"
+            className="h-6 w-auto object-contain dark:hidden"
+          />
+          <Image
+            src="/logo-dark.png"
+            alt="Pickora"
+            width={116}
+            height={24}
+            className="h-6 w-auto object-contain hidden dark:inline-block"
           />
           <span className="font-mono text-[10px] text-muted border border-rule px-1.5 py-0.5 rounded">
             ADMIN
           </span>
         </Link>
-        <button
-          type="button"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="size-9 inline-flex items-center justify-center rounded-md border border-rule text-ink"
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X className="size-4" /> : <Menu className="size-4" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            type="button"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="size-9 inline-flex items-center justify-center rounded-md border border-rule text-ink cursor-pointer"
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X className="size-4" /> : <Menu className="size-4" />}
+          </button>
+        </div>
       </div>
 
       {/* Backdrop for mobile */}
@@ -97,7 +108,14 @@ export function AdminNav({ userEmail }: AdminNavProps) {
                 alt="Pickora"
                 width={116}
                 height={24}
-                className="h-6 w-auto object-contain"
+                className="h-6 w-auto object-contain dark:hidden"
+              />
+              <Image
+                src="/logo-dark.png"
+                alt="Pickora"
+                width={116}
+                height={24}
+                className="h-6 w-auto object-contain hidden dark:inline-block"
               />
               <span className="font-mono text-[10px] text-muted border border-rule px-1.5 py-0.5 rounded">
                 ADMIN
@@ -129,7 +147,7 @@ export function AdminNav({ userEmail }: AdminNavProps) {
                   className={cn(
                     "flex items-center gap-3 px-3 min-h-10 rounded-md text-sm font-medium transition-colors",
                     link.active
-                      ? "bg-ink text-white"
+                      ? "bg-ink text-paper"
                       : "text-muted hover:text-ink hover:bg-paper"
                   )}
                 >
@@ -160,20 +178,23 @@ export function AdminNav({ userEmail }: AdminNavProps) {
               </p>
               <p className="text-[10px] font-mono text-muted uppercase">Administrator</p>
             </div>
-            <button
-              type="button"
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              title={isLoggingOut ? "Signing out..." : "Sign out"}
-              aria-label={isLoggingOut ? "Signing out..." : "Sign out"}
-              className="size-8 inline-flex items-center justify-center rounded-md text-muted hover:text-accent hover:bg-accent/5 transition-colors cursor-pointer disabled:opacity-50"
-            >
-              {isLoggingOut ? (
-                <Loader2 className="size-4 animate-spin text-accent" />
-              ) : (
-                <LogOut className="size-4" />
-              )}
-            </button>
+            <div className="flex items-center gap-1.5">
+              <ThemeToggle className="size-8" />
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                title={isLoggingOut ? "Signing out..." : "Sign out"}
+                aria-label={isLoggingOut ? "Signing out..." : "Sign out"}
+                className="size-8 inline-flex items-center justify-center rounded-md text-muted hover:text-accent hover:bg-accent/5 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {isLoggingOut ? (
+                  <Loader2 className="size-4 animate-spin text-accent" />
+                ) : (
+                  <LogOut className="size-4" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </aside>

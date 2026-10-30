@@ -92,8 +92,13 @@ export default function RootLayout({
     process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-9572962055277353";
 
   return (
-    <html lang="en" className={`${plexSans.variable} ${plexMono.variable} h-full`}>
+    <html lang="en" className={`${plexSans.variable} ${plexMono.variable} h-full`} suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("pickora-theme");if(t==="dark"){document.documentElement.classList.add("dark");}else{document.documentElement.classList.remove("dark");}}catch(e){}})();`,
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         {adsenseClientId && (
           <script

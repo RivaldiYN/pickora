@@ -39,7 +39,15 @@ export default async function LoginPage({
               width={140}
               height={29}
               priority
-              className="h-7 w-auto object-contain"
+              className="h-7 w-auto object-contain dark:hidden"
+            />
+            <Image
+              src="/logo-dark.png"
+              alt="Pickora"
+              width={140}
+              height={29}
+              priority
+              className="h-7 w-auto object-contain hidden dark:inline-block"
             />
           </Link>
           <h1 className="text-xl font-semibold">Admin sign in</h1>

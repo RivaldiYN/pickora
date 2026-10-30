@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function Navbar() {
   return (
@@ -14,14 +15,22 @@ export function Navbar() {
             width={136}
             height={28}
             priority
-            className="h-7 w-auto object-contain"
+            className="h-7 w-auto object-contain dark:hidden"
+          />
+          <Image
+            src="/logo-dark.png"
+            alt="Pickora"
+            width={136}
+            height={28}
+            priority
+            className="h-7 w-auto object-contain hidden dark:inline-block"
           />
           <span className="font-mono text-[10px] text-muted border border-rule px-1.5 py-0.5 rounded hidden sm:inline-block">
             INDEX
           </span>
         </Link>
 
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-3 sm:gap-6">
           <div className="hidden sm:flex items-center gap-5 text-xs font-medium text-muted">
             <Link href="/" className="hover:text-ink transition-colors">
               Picks
@@ -33,6 +42,8 @@ export function Navbar() {
               Contact
             </Link>
           </div>
+
+          <ThemeToggle />
 
           <Link href="/admin">
             <Button
