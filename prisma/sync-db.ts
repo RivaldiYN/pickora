@@ -71,6 +71,11 @@ async function syncSchema() {
     CREATE INDEX IF NOT EXISTS "products_clicks_idx" ON products(clicks);
   `;
 
+  await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS review TEXT;`;
+  await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS pros TEXT;`;
+  await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS cons TEXT;`;
+  await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS verdict TEXT;`;
+
   console.log("Schema successfully synced to Neon PostgreSQL!");
 }
 

@@ -41,6 +41,12 @@ model Product {
   affiliateUrl String
   price        Decimal? @db.Decimal(10, 2)
   featured     Boolean  @default(false)
+  // Long-form editorial content. A product page is only indexed and monetized
+  // once `review` is substantial (see lib/content-quality.ts).
+  review       String?
+  pros         String?
+  cons         String?
+  verdict      String?
   clicks       Int      @default(0)
   categoryId   String
   category     Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)

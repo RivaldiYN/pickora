@@ -144,7 +144,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <link itemProp="availability" href="https://schema.org/InStock" />
 
           <a
-            href={`/picks/${product.id}`}
+            href={`/picks/${product.id}#review`}
             onClick={(e) => e.stopPropagation()}
             className="inline-flex min-h-11 items-center justify-center px-3 py-2.5 rounded-md border border-rule text-xs font-semibold text-ink hover:bg-paper transition-colors cursor-pointer shrink-0"
             title="Read full review & specs"

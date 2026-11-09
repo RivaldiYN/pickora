@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Textarea, Select } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { createProduct, updateProduct } from "@/lib/actions/products";
+import { countWords, MIN_REVIEW_WORDS } from "@/lib/content-quality";
 
 interface CategoryOption {
   id: string;
@@ -22,6 +23,10 @@ interface ProductToEdit {
   categoryId: string;
   price?: number | null;
   featured?: boolean;
+  review?: string | null;
+  pros?: string | null;
+  cons?: string | null;
+  verdict?: string | null;
 }
 
 interface ProductDialogProps {
@@ -51,6 +56,12 @@ function ProductForm({ onClose, categories, productToEdit }: ProductFormProps) {
       : ""
   );
   const [featured, setFeatured] = React.useState(!!productToEdit?.featured);
+  const [review, setReview] = React.useState(productToEdit?.review ?? "");
+  const [pros, setPros] = React.useState(productToEdit?.pros ?? "");
+  const [cons, setCons] = React.useState(productToEdit?.cons ?? "");
+  const [verdict, setVerdict] = React.useState(productToEdit?.verdict ?? "");
+  const reviewWords = countWords(review);
+  const reviewReady = reviewWords >= MIN_REVIEW_WORDS;
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -116,6 +127,10 @@ function ProductForm({ onClose, categories, productToEdit }: ProductFormProps) {
       categoryId,
       price: price ? parseFloat(price) : null,
       featured,
+      review,
+      pros,
+      cons,
+      verdict,
     };
 
     const res = productToEdit
@@ -314,14 +329,68 @@ function ProductForm({ onClose, categories, productToEdit }: ProductFormProps) {
         />
       </Field>
 
-      <Field label="Description" htmlFor="prod-desc">
+      <Field
+        label="Summary"
+        htmlFor="prod-desc"
+        hint="One or two sentences shown on the product card and as the page meta description."
+      >
         <Textarea
           id="prod-desc"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Why this item is worth buying..."
+          placeholder="Who this is for and the one reason to pick it."
           rows={3}
           required
+        />
+      </Field>
+
+      <Field
+        label="Full review"
+        htmlFor="prod-review"
+        hint={`Your own write-up: how you used it, what stood out, who should skip it. Separate paragraphs with a blank line. The page is indexed by Google and can show ads once it reaches ${MIN_REVIEW_WORDS} words.`}
+      >
+        <Textarea
+          id="prod-review"
+          value={review}
+          onChange={(e) => setReview(e.target.value)}
+          placeholder="Write from your own experience with the product..."
+          rows={10}
+        />
+        <p
+          className={`text-xs font-medium ${reviewReady ? "text-emerald-600" : "text-muted"}`}
+          aria-live="polite"
+        >
+          {reviewWords} / {MIN_REVIEW_WORDS} words
+          {reviewReady ? " · page will be indexed" : " · page stays noindex until this is reached"}
+        </p>
+      </Field>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Field label="Pros (one per line)" htmlFor="prod-pros">
+          <Textarea
+            id="prod-pros"
+            value={pros}
+            onChange={(e) => setPros(e.target.value)}
+            rows={4}
+          />
+        </Field>
+        <Field label="Cons (one per line)" htmlFor="prod-cons">
+          <Textarea
+            id="prod-cons"
+            value={cons}
+            onChange={(e) => setCons(e.target.value)}
+            rows={4}
+          />
+        </Field>
+      </div>
+
+      <Field label="Verdict (optional)" htmlFor="prod-verdict">
+        <Textarea
+          id="prod-verdict"
+          value={verdict}
+          onChange={(e) => setVerdict(e.target.value)}
+          placeholder="Your bottom line in two or three sentences."
+          rows={3}
         />
       </Field>
 

@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { isSubstantialReview } from "@/lib/content-quality";
 
 // Plain server-side reads. Kept out of "use server" files so they are not exposed as actions.
 // Errors propagate so error.tsx can show an outage instead of an empty catalog.
@@ -13,6 +14,12 @@ export type PublicProduct = {
   featured: boolean;
   categoryId: string;
   category: { id: string; name: string; slug: string };
+  review: string | null;
+  pros: string | null;
+  cons: string | null;
+  verdict: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type CategoryWithCount = {
@@ -22,6 +29,46 @@ export type CategoryWithCount = {
   description: string | null;
   productCount: number;
 };
+
+const productInclude = { category: { select: { id: true, name: true, slug: true } } } as const;
+
+type ProductRow = {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  affiliateUrl: string;
+  price: { toString(): string } | null;
+  featured: boolean;
+  categoryId: string;
+  category: { id: string; name: string; slug: string };
+  review: string | null;
+  pros: string | null;
+  cons: string | null;
+  verdict: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+function toPublicProduct(p: ProductRow): PublicProduct {
+  return {
+    id: p.id,
+    title: p.title,
+    description: p.description,
+    imageUrl: p.imageUrl,
+    affiliateUrl: p.affiliateUrl,
+    price: p.price === null ? null : Number(p.price),
+    featured: p.featured,
+    categoryId: p.categoryId,
+    category: p.category,
+    review: p.review,
+    pros: p.pros,
+    cons: p.cons,
+    verdict: p.verdict,
+    createdAt: p.createdAt,
+    updatedAt: p.updatedAt,
+  };
+}
 
 export async function listCategories(): Promise<CategoryWithCount[]> {
   const rows = await db.category.findMany({
@@ -84,41 +131,19 @@ export async function listProducts(
     where,
     orderBy,
     take: limit,
-    include: { category: { select: { id: true, name: true, slug: true } } },
+    include: productInclude,
   });
 
-  return rows.map((p) => ({
-    id: p.id,
-    title: p.title,
-    description: p.description,
-    imageUrl: p.imageUrl,
-    affiliateUrl: p.affiliateUrl,
-    price: p.price === null ? null : Number(p.price),
-    featured: p.featured,
-    categoryId: p.categoryId,
-    category: p.category,
-  }));
+  return rows.map(toPublicProduct);
 }
 
 export async function getProductById(id: string): Promise<PublicProduct | null> {
   const p = await db.product.findUnique({
     where: { id },
-    include: { category: { select: { id: true, name: true, slug: true } } },
+    include: productInclude,
   });
 
-  if (!p) return null;
-
-  return {
-    id: p.id,
-    title: p.title,
-    description: p.description,
-    imageUrl: p.imageUrl,
-    affiliateUrl: p.affiliateUrl,
-    price: p.price === null ? null : Number(p.price),
-    featured: p.featured,
-    categoryId: p.categoryId,
-    category: p.category,
-  };
+  return p ? toPublicProduct(p) : null;
 }
 
 export async function listRelatedProducts(
@@ -133,19 +158,15 @@ export async function listRelatedProducts(
     },
     take: limit,
     orderBy: { createdAt: "desc" },
-    include: { category: { select: { id: true, name: true, slug: true } } },
+    include: productInclude,
   });
 
-  return rows.map((p) => ({
-    id: p.id,
-    title: p.title,
-    description: p.description,
-    imageUrl: p.imageUrl,
-    affiliateUrl: p.affiliateUrl,
-    price: p.price === null ? null : Number(p.price),
-    featured: p.featured,
-    categoryId: p.categoryId,
-    category: p.category,
-  }));
+  return rows.map(toPublicProduct);
 }
 
+// Number of products with a full write-up. Used to decide whether listing
+// pages carry enough original content to show ad units.
+export async function countSubstantialReviews(): Promise<number> {
+  const rows = await db.product.findMany({ select: { review: true } });
+  return rows.filter((r) => isSubstantialReview(r.review)).length;
+}

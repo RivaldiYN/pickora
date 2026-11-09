@@ -6,25 +6,23 @@ import { Footer } from "@/components/public/Footer";
 import { ProductCard } from "@/components/public/ProductCard";
 import { AdBanner } from "@/components/public/AdBanner";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { getProductById, listRelatedProducts } from "@/lib/queries";
 import { formatCurrency } from "@/lib/utils";
-import { getSiteUrl, siteConfig } from "@/lib/seo";
-import {
-  ExternalLink,
-  ChevronRight,
-  ShieldCheck,
-  CheckCircle2,
-  Share2,
-  ArrowLeft,
-  Sparkles,
-} from "lucide-react";
+import { getSiteUrl } from "@/lib/seo";
+import { isSubstantialReview, splitLines } from "@/lib/content-quality";
+import { ExternalLink, ChevronRight, ArrowLeft, Check, X } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
 }
+
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { id } = await params;
@@ -38,8 +36,9 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
   const siteUrl = getSiteUrl();
   const canonicalUrl = `${siteUrl}/picks/${product.id}`;
-  const title = `${product.title} Review & Recommendation | Pickora`;
-  const description = `${product.description.slice(0, 160)}... Tested and curated by Pickora. Verified retail purchase link included.`;
+  const hasReview = isSubstantialReview(product.review);
+  const title = hasReview ? `${product.title} Review | Pickora` : `${product.title} | Pickora`;
+  const description = product.description.slice(0, 160);
 
   return {
     title,
@@ -47,6 +46,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     alternates: {
       canonical: canonicalUrl,
     },
+    // Pages without a full write-up stay out of the index until one is published.
+    robots: hasReview ? undefined : { index: false, follow: true },
     openGraph: {
       title,
       description,
@@ -83,6 +84,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const siteUrl = getSiteUrl();
   const canonicalUrl = `${siteUrl}/picks/${product.id}`;
 
+  const hasReview = isSubstantialReview(product.review);
+  const reviewParagraphs = (product.review ?? "")
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  const pros = splitLines(product.pros);
+  const cons = splitLines(product.cons);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -107,7 +116,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       />
       <Navbar />
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
         {/* Breadcrumb Navigation */}
         <nav
           aria-label="Breadcrumbs"
@@ -130,32 +139,22 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
         {/* 2-Column Hero Overview */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-          {/* Left Column: Image & Media */}
-          <div className="lg:col-span-7 space-y-4">
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-surface border border-rule shadow-xs p-4 flex items-center justify-center">
+          {/* Left Column: Image */}
+          <div className="lg:col-span-7 space-y-3">
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-surface border border-rule p-4 flex items-center justify-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={product.imageUrl}
                 alt={product.title}
                 className="max-h-full max-w-full object-contain rounded-lg"
               />
-
-              {formattedPrice && (
-                <div className="absolute top-4 right-4">
-                  <span className="font-mono rounded-lg bg-ink px-3.5 py-1.5 text-sm sm:text-base font-semibold text-paper shadow-md">
-                    {formattedPrice}
-                  </span>
-                </div>
-              )}
             </div>
-
-            <div className="flex items-center justify-between text-xs text-muted px-1">
-              <span className="flex items-center gap-1.5 font-mono text-[11px]">
-                <ShieldCheck className="size-3.5 text-accent" />
-                VERIFIED EDITORIAL SPECIFICATION
-              </span>
-              <span>Updated recently</span>
-            </div>
+            <p className="text-xs text-muted px-1">
+              Last updated{" "}
+              <time dateTime={product.updatedAt.toISOString()}>
+                {dateFormatter.format(product.updatedAt)}
+              </time>
+            </p>
           </div>
 
           {/* Right Column: Key Details & CTA */}
@@ -178,11 +177,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 {product.title}
               </h1>
 
+              <p className="text-sm text-muted leading-relaxed">{product.description}</p>
+
               {formattedPrice && (
                 <div className="pt-1">
-                  <div className="text-xs font-mono text-muted uppercase tracking-wider">
-                    Retail Price Target
-                  </div>
+                  <div className="text-xs text-muted">Price at time of writing</div>
                   <div className="text-2xl font-bold font-mono text-ink mt-0.5">
                     {formattedPrice}
                   </div>
@@ -191,118 +190,132 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             </div>
 
             {/* Outbound Purchase Box */}
-            <div className="rounded-xl border border-rule bg-surface p-5 space-y-4 shadow-xs">
-              <div className="space-y-1">
-                <div className="text-xs font-semibold text-ink flex items-center gap-1.5">
-                  <CheckCircle2 className="size-4 text-emerald-600" />
-                  Official Retailer Link Verified
-                </div>
-                <p className="text-xs text-muted leading-relaxed">
-                  Direct connection with manufacturer or authorized partner. Returns and warranties fully honored.
-                </p>
-              </div>
-
+            <div className="rounded-xl border border-rule bg-surface p-5 space-y-3">
               <a
                 href={`/api/out/${product.id}`}
                 target="_blank"
                 rel="noopener noreferrer sponsored"
-                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-semibold py-3 px-5 transition-colors shadow-xs"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-semibold py-3 px-5 transition-colors"
               >
-                <span>Check Live Price &amp; Buy on Retailer</span>
+                <span>Check current price at the retailer</span>
                 <ExternalLink className="size-4" />
               </a>
-
               <p className="text-[11px] text-muted text-center">
-                When you purchase through our links, Pickora may earn a small affiliate commission.
+                Prices change. This is an affiliate link: Pickora may earn a commission if you buy,
+                at no extra cost to you.{" "}
+                <Link href="/disclosure" className="underline hover:text-ink">
+                  Read our disclosure
+                </Link>
+                .
               </p>
             </div>
 
-            {/* Quick Share / Metadata */}
-            <div className="flex items-center justify-between pt-2 border-t border-rule text-xs text-muted">
-              <span className="font-mono text-[11px]">ID: {product.id}</span>
-              <div className="flex items-center gap-3">
-                <span className="font-medium text-ink">Share:</span>
-                <a
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(product.title)}&url=${encodeURIComponent(canonicalUrl)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-ink transition-colors"
-                >
-                  Twitter/X
-                </a>
-                <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`${product.title} - ${canonicalUrl}`)}` }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-ink transition-colors"
-                >
-                  WhatsApp
-                </a>
-              </div>
+            {/* Share */}
+            <div className="flex items-center gap-3 pt-2 border-t border-rule text-xs text-muted">
+              <span className="font-medium text-ink">Share:</span>
+              <a
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(product.title)}&url=${encodeURIComponent(canonicalUrl)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-ink transition-colors"
+              >
+                Twitter/X
+              </a>
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(`${product.title} - ${canonicalUrl}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-ink transition-colors"
+              >
+                WhatsApp
+              </a>
             </div>
           </div>
         </div>
 
-        {/* Editorial Evaluation / In-Depth Review Section */}
-        <section className="mt-12 pt-10 border-t border-rule">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-8 space-y-8">
-              <div className="bg-surface rounded-xl border border-rule p-6 sm:p-8 space-y-4">
-                <div className="flex items-center gap-2 text-ink font-bold text-lg">
-                  <Sparkles className="size-5 text-accent" />
-                  Why We Picked This
+        {/* Editorial write-up */}
+        {reviewParagraphs.length > 0 ? (
+          <section id="review" className="mt-12 pt-10 border-t border-rule scroll-mt-20">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <article className="lg:col-span-8 space-y-8">
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-bold text-ink">In-Depth Editorial Review</h2>
+                  <div className="space-y-4 text-base text-ink/90 leading-relaxed">
+                    {reviewParagraphs.map((paragraph, i) => (
+                      <p key={i} className="whitespace-pre-line">
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
                 </div>
-                <div className="text-sm sm:text-base text-muted leading-relaxed whitespace-pre-line">
-                  {product.description}
-                </div>
-              </div>
 
-              {/* Standardized Testing Highlights */}
-              <div className="bg-surface rounded-xl border border-rule p-6 sm:p-8">
-                <h3 className="text-base font-bold text-ink mb-4">
-                  Editorial Assessment Criteria
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-muted">
-                  <div className="p-3.5 rounded-lg border border-rule/60 bg-paper/60">
-                    <span className="font-semibold text-ink block mb-1">Durability Score</span>
-                    Built with verified resilience against everyday wear and tear.
+                {(pros.length > 0 || cons.length > 0) && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {pros.length > 0 && (
+                      <div className="rounded-xl border border-rule bg-surface p-5">
+                        <h3 className="text-sm font-bold text-ink mb-3">What we liked</h3>
+                        <ul className="space-y-2 text-sm text-ink/90">
+                          {pros.map((item, i) => (
+                            <li key={i} className="flex gap-2">
+                              <Check className="size-4 text-emerald-600 shrink-0 mt-0.5" aria-hidden="true" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {cons.length > 0 && (
+                      <div className="rounded-xl border border-rule bg-surface p-5">
+                        <h3 className="text-sm font-bold text-ink mb-3">What could be better</h3>
+                        <ul className="space-y-2 text-sm text-ink/90">
+                          {cons.map((item, i) => (
+                            <li key={i} className="flex gap-2">
+                              <X className="size-4 text-accent shrink-0 mt-0.5" aria-hidden="true" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
-                  <div className="p-3.5 rounded-lg border border-rule/60 bg-paper/60">
-                    <span className="font-semibold text-ink block mb-1">Price-to-Value</span>
-                    Benchmarked against market equivalents in the {product.category.name} sector.
+                )}
+
+                {product.verdict && (
+                  <div className="rounded-xl border border-rule bg-surface p-5 sm:p-6">
+                    <h3 className="text-sm font-bold text-ink mb-2">Verdict</h3>
+                    <p className="text-sm sm:text-base text-ink/90 leading-relaxed whitespace-pre-line">
+                      {product.verdict}
+                    </p>
                   </div>
-                  <div className="p-3.5 rounded-lg border border-rule/60 bg-paper/60">
-                    <span className="font-semibold text-ink block mb-1">After-Sales Support</span>
-                    Authorized manufacturer customer service and warranty policies.
-                  </div>
-                </div>
-              </div>
+                )}
+              </article>
+
+              <aside className="lg:col-span-4 space-y-6">
+                <AdBanner slot="2345678901" format="rectangle" label="ADVERTISEMENT" />
+              </aside>
             </div>
+          </section>
+        ) : (
+          <section className="mt-12 pt-10 border-t border-rule">
+            <p className="text-sm text-muted max-w-2xl">
+              A full write-up for this pick is in progress. Until it is published, the summary above
+              is what we have.
+            </p>
+          </section>
+        )}
 
-            {/* Sidebar Ad Placement */}
-            <div className="lg:col-span-4 space-y-6">
-              <AdBanner slot="2345678901" format="rectangle" label="SPONSORED PRODUCT SPONSOR" />
-            </div>
-          </div>
-        </section>
-
-        {/* Related Products Carousel / Grid */}
+        {/* Related Products */}
         {relatedProducts.length > 0 && (
           <section className="mt-16 pt-12 border-t border-rule">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-bold text-ink">
-                  More in {product.category.name}
-                </h2>
-                <p className="text-xs text-muted mt-0.5">
-                  Explore other handpicked gear vetted in this category.
-                </p>
+                <h2 className="text-xl font-bold text-ink">More in {product.category.name}</h2>
               </div>
               <Link
                 href={`/?category=${encodeURIComponent(product.category.slug)}`}
                 className="text-xs font-semibold text-ink hover:underline"
               >
-                View all &rarr;
+                View all
               </Link>
             </div>
 

@@ -2,12 +2,13 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Pencil, Trash2, ExternalLink, Package, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, Package, Loader2, FileCheck, FileQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ProductDialog } from "./ProductDialog";
 import { deleteProduct } from "@/lib/actions/products";
 import { formatCurrency } from "@/lib/utils";
+import { countWords, MIN_REVIEW_WORDS } from "@/lib/content-quality";
 
 interface Category {
   id: string;
@@ -25,6 +26,10 @@ interface Product {
   featured: boolean;
   categoryId: string;
   category: Category;
+  review?: string | null;
+  pros?: string | null;
+  cons?: string | null;
+  verdict?: string | null;
 }
 
 interface ProductTableProps {
@@ -155,7 +160,7 @@ export function ProductTable({ products, categories }: ProductTableProps) {
                           }}
                         />
                         <div className="min-w-0 max-w-xs sm:max-w-sm">
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="font-semibold text-ink truncate">
                               {p.title}
                             </span>
@@ -163,6 +168,17 @@ export function ProductTable({ products, categories }: ProductTableProps) {
                               <Badge variant="accent" className="text-[10px] px-1.5 py-0">
                                 Featured
                               </Badge>
+                            )}
+                            {countWords(p.review) >= MIN_REVIEW_WORDS ? (
+                              <span className="inline-flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 rounded px-1.5 py-0.5">
+                                <FileCheck className="size-3" />
+                                {countWords(p.review)} words · Indexed
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-[10px] text-amber-700 bg-amber-50 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-300 dark:border-amber-800 rounded px-1.5 py-0.5">
+                                <FileQuestion className="size-3" />
+                                {countWords(p.review)}/{MIN_REVIEW_WORDS} · Noindex
+                              </span>
                             )}
                           </div>
                           <p className="text-xs text-muted line-clamp-1 mt-0.5">

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/seo";
 import { listCategories, listProducts } from "@/lib/queries";
+import { isSubstantialReview } from "@/lib/content-quality";
 
 export const dynamic = "force-dynamic";
 
@@ -50,20 +51,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
+  // Only advertise pages that carry a full write-up; the rest are noindex.
+  const reviewed = products.filter((p) => isSubstantialReview(p.review));
+  const reviewedCategoryIds = new Set(reviewed.map((p) => p.categoryId));
+
   for (const category of categories) {
+    if (!reviewedCategoryIds.has(category.id)) continue;
     routes.push({
       url: `${siteUrl}/?category=${encodeURIComponent(category.slug)}`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
+      changeFrequency: "weekly",
       priority: 0.8,
     });
   }
 
-  for (const product of products) {
+  for (const product of reviewed) {
     routes.push({
       url: `${siteUrl}/picks/${product.id}`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
+      lastModified: product.updatedAt,
+      changeFrequency: "monthly",
       priority: 0.9,
     });
   }

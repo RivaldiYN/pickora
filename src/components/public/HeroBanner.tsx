@@ -5,7 +5,7 @@ export function HeroBanner() {
         <div className="flex items-center gap-2">
           <span className="inline-block size-2 rounded-full bg-accent" aria-hidden="true" />
           <p className="font-mono text-xs text-muted uppercase tracking-wider">
-            Verified Editorial Index · Updated Daily
+            Independent product picks
           </p>
         </div>
         <h1 id="hero-title" className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-ink max-w-3xl leading-tight">

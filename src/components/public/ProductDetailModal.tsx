@@ -182,7 +182,7 @@ export function ProductDetailModal({
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <a
-              href={`/picks/${product.id}`}
+              href={`/picks/${product.id}#review`}
               className="flex-1 sm:flex-none px-3.5 py-2.5 rounded-md border border-rule text-xs font-semibold text-ink hover:bg-paper transition-colors text-center cursor-pointer"
             >
               Full Review Page

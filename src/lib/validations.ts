@@ -20,6 +20,12 @@ const imageSource = z
     "Image must be an uploaded asset (/api/assets/...) or an HTTP/HTTPS URL"
   );
 
+const optionalText = (max: number) =>
+  z.preprocess(
+    (v) => (typeof v === "string" && v.trim() === "" ? null : v),
+    z.string().trim().max(max).nullable().optional()
+  );
+
 export const categorySchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(50),
   slug: z
@@ -52,6 +58,10 @@ export const productSchema = z.object({
       .nullable()
   ),
   featured: z.boolean().default(false),
+  review: optionalText(20000),
+  pros: optionalText(2000),
+  cons: optionalText(2000),
+  verdict: optionalText(1000),
 });
 
 export type ProductInput = z.input<typeof productSchema>;

@@ -7,7 +7,8 @@ import { ProductGrid } from "@/components/public/ProductGrid";
 import { Footer } from "@/components/public/Footer";
 import { AdBanner } from "@/components/public/AdBanner";
 import { CookieConsent } from "@/components/public/CookieConsent";
-import { listCategories, listProducts, type SortOption } from "@/lib/queries";
+import { listCategories, listProducts, countSubstantialReviews, type SortOption } from "@/lib/queries";
+import { MIN_REVIEWED_FOR_LISTING_ADS } from "@/lib/content-quality";
 import { siteConfig, getSiteUrl, toAbsoluteUrl } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
@@ -78,14 +79,16 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 export default async function HomePage({ searchParams }: PageProps) {
   const { category: categorySlug, q, sort } = await searchParams;
 
-  const [categories, products] = await Promise.all([
+  const [categories, products, reviewedCount] = await Promise.all([
     listCategories(),
     listProducts({
       categorySlug,
       search: q,
       sort,
     }),
+    countSubstantialReviews(),
   ]);
+  const showListingAd = reviewedCount >= MIN_REVIEWED_FOR_LISTING_ADS;
 
   const activeCategory = categories.find((c) => c.slug === categorySlug);
   const currentCategoryName = activeCategory?.name || (categorySlug ? categorySlug : "All Products");
@@ -167,12 +170,13 @@ export default async function HomePage({ searchParams }: PageProps) {
           currentCategoryName={currentCategoryName}
         />
 
-        {/* Responsive Google Ads Placement Container */}
-        <AdBanner
-          slot="3456789012"
-          format="horizontal"
-          label="FEATURED SPONSOR / ADVERTISEMENT"
-        />
+        {showListingAd && (
+          <AdBanner
+            slot="3456789012"
+            format="horizontal"
+            label="ADVERTISEMENT"
+          />
+        )}
       </main>
 
       <Footer />

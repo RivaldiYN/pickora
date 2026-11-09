@@ -10,6 +10,8 @@ import type { ActionResponse } from "./types";
 function revalidateCatalog() {
   revalidatePath("/admin", "layout");
   revalidatePath("/");
+  revalidatePath("/picks/[id]", "page");
+  revalidatePath("/sitemap.xml");
 }
 
 function parseProduct(input: ProductInput) {
